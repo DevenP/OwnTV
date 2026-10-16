@@ -901,23 +901,25 @@ fun LiveScreen(
                     modifier = Modifier.align(Alignment.BottomEnd).padding(end = margin, bottom = 40.mpx),
                 )
             }
+        }
 
-            if (previewShown) {
-                LiveStagePane(
-                    channel = previewChannel,
-                    channelName = previewChannel?.let { ProviderTags.parse(it.name).name },
-                    nowNext = nowNext,
-                    previewEngine = vm.previewEngine,
-                    showVideo = effectivePreview,
-                    singleSessionBlocked = previewBlockedSingleSession,
-                    scheduleFocus = scheduleFocus,
-                    onOpenProgramme = { p -> previewChannel?.let { openProgramme = it to p } },
-                    onBackToList = { focusCurrentRow() },
-                    modifier = Modifier
-                        .padding(start = screenW - margin - stageW, top = 120.mpx)
-                        .width(stageW),
-                )
-            }
+        // The preview sits outside the dimmed list side: a video surface under a translucent layer goes
+        // black, and the show keeps playing while the categories are open.
+        if (previewShown) {
+            LiveStagePane(
+                channel = previewChannel,
+                channelName = previewChannel?.let { ProviderTags.parse(it.name).name },
+                nowNext = nowNext,
+                previewEngine = vm.previewEngine,
+                showVideo = effectivePreview,
+                singleSessionBlocked = previewBlockedSingleSession,
+                scheduleFocus = scheduleFocus,
+                onOpenProgramme = { p -> previewChannel?.let { openProgramme = it to p } },
+                onBackToList = { focusCurrentRow() },
+                modifier = Modifier
+                    .padding(start = screenW - margin - stageW, top = 120.mpx)
+                    .width(stageW),
+            )
         }
 
         if (categoriesOpen) {
