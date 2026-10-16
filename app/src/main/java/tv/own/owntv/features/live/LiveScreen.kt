@@ -560,10 +560,11 @@ fun LiveScreen(
 
     // CH± in the categories moves the highlight only; OK picks (owner, 2026-10-01).
     var catFocusIndex by remember { mutableStateOf<Int?>(null) }
+    // Browsing the categories (or the search field) keeps the preview playing, like a TV: only picking
+    // another channel or leaving Live TV changes it.
     val categoriesModifier = Modifier
         .onFocusChanged {
             railPaneFocused = it.hasFocus
-            if (it.hasFocus && previewEnabled) vm.stopPreview()
             // The sheet closes when focus leaves it (◀ to the rail) — not while its own menus are open,
             // and not on the "unfocused" report every node gets when it first attaches.
             if (it.hasFocus) sheetHadFocus = true
@@ -763,7 +764,6 @@ fun LiveScreen(
                             .weight(1f, fill = false)
                             .width(if (separate) listWidth * (230f / 620f) else listWidth * (456f / 846f))
                             .focusRequester(listSearchFocus)
-                            .onFocusChanged { if (it.hasFocus && previewEnabled) vm.stopPreview() }
                             // ◀ Categories from the search field too, as from the rows (not while typing).
                             .onPreviewKeyEvent { e ->
                                 if (e.type == androidx.compose.ui.input.key.KeyEventType.KeyDown &&
