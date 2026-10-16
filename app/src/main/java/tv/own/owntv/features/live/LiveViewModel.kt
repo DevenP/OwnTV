@@ -5,7 +5,6 @@ package tv.own.owntv.features.live
 import tv.own.owntv.core.epg.displayLogoUrl
 import android.content.Context
 import android.util.Log
-import androidx.compose.runtime.Immutable
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.paging.Pager
@@ -97,17 +96,6 @@ import tv.own.owntv.core.live.EpgNowNext
 import tv.own.owntv.core.live.LiveEpgReader
 import tv.own.owntv.core.live.LiveArchiveUrls
 import tv.own.owntv.core.live.CatchupContinue
-
-/** A rail entry. Favorites/History carry an [icon] rendered inline before the title. */
-@Immutable
-data class LiveRailItem(
-    val key: LiveKey,
-    val title: String? = null,
-    val icon: OwnTVIcon? = null,
-    val providerName: String? = null,
-    /** The playlist a folder belongs to: its mark in the Movies / Series category list. */
-    val sourceId: Long? = null,
-)
 
 class LiveViewModel(
     private val appContext: Context,
