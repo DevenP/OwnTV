@@ -1,6 +1,8 @@
 package tv.own.owntv.features.live
 
+import tv.own.owntv.ui.components.onDpadLeft
 import tv.own.owntv.core.epg.displayLogoUrl
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.rememberScrollState
@@ -64,6 +66,8 @@ import androidx.compose.ui.input.key.Key
 import tv.own.owntv.core.customize.CustomizeKeys
 import tv.own.owntv.core.database.entity.ChannelEntity
 import tv.own.owntv.core.database.entity.ContentOrderEntity
+import tv.own.owntv.features.categorylock.focusListAfterSheet
+import tv.own.owntv.features.categorylock.rememberListPinFocus
 import tv.own.owntv.features.customize.MoveToCategoryDialog
 import tv.own.owntv.features.settings.SettingsViewModel
 import tv.own.owntv.core.settings.PanelSection
@@ -105,6 +109,7 @@ fun LiveScreen(
     onOpenGuide: () -> Unit = {},
 ) {
     val vm: LiveViewModel = koinViewModel()
+    val lockVm: tv.own.owntv.features.categorylock.CategoryLockViewModel = koinViewModel()
     // Locking and unlocking are one pair: the pin belongs to this screen's lifetime, not to the view
     // model's. On the television that view model is a single instance shared with the browse section,
     // so a pin left behind froze its category rail. `DisposableEffect` (not `LaunchedEffect`) also
@@ -487,15 +492,14 @@ fun LiveScreen(
         .collectAsStateWithLifecycle()
     val scheduleFocus = remember { FocusRequester() }
     var openProgramme by remember { mutableStateOf<Pair<ChannelEntity, tv.own.owntv.core.parser.XtEpgEntry>?>(null) }
-    // Back closes the sheet: one level out.
-    androidx.activity.compose.BackHandler(enabled = categoriesOpen) { categoriesOpen = false; focusCurrentRow() }
     LaunchedEffect(categoriesOpen) {
         if (categoriesOpen) { withFrameNanos { }; runCatching { railFocus.requestFocus() } }
         // However the sheet closed (Back, a pick, ◀ to the rail), the next one starts fresh.
         else sheetHadFocus = false
     }
 
-    // Focus from the categories to the channel list: the remembered channel, else the first row.
+    // Focus from the categories to the channel list: the remembered channel, else the first row (a
+    // locked category's Enter PIN button holds its requester), else the search field.
     fun focusChannelList() {
         val targetId = if (rememberLive) perCategoryChannelIds[selectedKey] ?: previewChannel?.id else previewChannel?.id
         scope.launch {
@@ -510,11 +514,16 @@ fun LiveScreen(
                     if (runCatching { firstItemFocus.requestFocus() }.getOrDefault(false)) return@launch
                     withFrameNanos { }
                 }
-            } else {
+            } else if (!runCatching { firstItemFocus.requestFocus() }.getOrDefault(false)) {
                 runCatching { listSearchFocus.requestFocus() }
             }
         }
     }
+    val listPin = rememberListPinFocus(channels.itemCount, firstItemFocus, { revealRow(0) }) { focusChannelList() }
+    // Back closes the sheet: one level out, to the current row (or the list's way in when a lock emptied it).
+    BackHandler(enabled = categoriesOpen) { categoriesOpen = false; focusListAfterSheet(scope, ::focusCurrentRow, { channelPaneFocused }, ::focusChannelList) }
+    // ◀ Categories, from a row, the search field or a locked category's Enter PIN: the sheet (Stage) or the column (Separate).
+    fun openCategories() { if (separate) runCatching { railFocus.requestFocus() } else categoriesOpen = true }
 
     val (categoryEntries, groupsHeading) = liveCategoryEntries(railItems, railCounts)
     val headerLabel = if (selectedItem?.key is LiveKey.Folder || selectedItem?.key is LiveKey.Custom) ProviderTags.parse(selectedLabel).name else selectedLabel
@@ -528,7 +537,7 @@ fun LiveScreen(
             // The sheet closes when focus leaves it (◀ to the rail) — not while its own menus are open,
             // and not on the "unfocused" report every node gets when it first attaches.
             if (it.hasFocus) sheetHadFocus = true
-            else if (sheetHadFocus && categoriesOpen && contextCategory == null && categoryMoveState == null) {
+            else if (sheetHadFocus && categoriesOpen && contextCategory == null && categoryMoveState == null && !lockVm.prompting) {
                 sheetHadFocus = false
                 categoriesOpen = false
             }
@@ -543,8 +552,10 @@ fun LiveScreen(
             onJumpToIndex = { idx -> catFocusIndex = idx; railFocusRow = idx },
         )
     val onCategorySelect: (Int) -> Unit = { idx ->
-        railItems.getOrNull(idx)?.let { vm.select(it.key) }
-        if (categoriesOpen) { categoriesOpen = false; focusChannelList() }
+        val item = railItems.getOrNull(idx)
+        item?.let { vm.select(it.key) }
+        if (item?.sealed == true) lockVm.open(tv.own.owntv.core.model.MediaType.LIVE, item.key)
+        else if (categoriesOpen) { categoriesOpen = false; focusChannelList() }
     }
     val onCategoryLongSelect: (Int) -> Unit = { idx ->
         railItems.getOrNull(idx)?.let { item ->
@@ -642,7 +653,7 @@ fun LiveScreen(
         ) {
             LiveHeader(
                 category = headerLabel,
-                count = count,
+                count = count.takeUnless { selectedItem?.sealed == true },
                 showChevron = !separate && lockedKey == null,
                 modifier = Modifier.padding(start = fx(84), top = 52.mpx).width(listX - fx(84) + listWidth),
             )
@@ -727,15 +738,7 @@ fun LiveScreen(
                             .focusRequester(listSearchFocus)
                             .onFocusChanged { if (it.hasFocus && previewEnabled) vm.stopPreview() }
                             // ◀ Categories from the search field too, as from the rows (not while typing — a search that found nothing here may be in another category).
-                            .onPreviewKeyEvent { e ->
-                                if (e.type == androidx.compose.ui.input.key.KeyEventType.KeyDown &&
-                                    e.key == androidx.compose.ui.input.key.Key.DirectionLeft &&
-                                    !searchEditing && lockedKey == null
-                                ) {
-                                    if (separate) runCatching { railFocus.requestFocus() } else categoriesOpen = true
-                                    true
-                                } else false
-                            },
+                            .onDpadLeft({ !searchEditing && lockedKey == null }) { openCategories() },
                     )
                     tv.own.owntv.ui.stage.StageTool(
                         text = null,
@@ -752,10 +755,11 @@ fun LiveScreen(
                 Spacer(Modifier.height(20.mpx))
                 if (channels.itemCount == 0) {
                     Box(Modifier.fillMaxWidth().weight(1f), contentAlignment = Alignment.Center) {
-                        Text(
-                            if (searchQuery.isNotBlank()) stringResource(R.string.content_no_channels_found, searchQuery.trim()) else stringResource(R.string.content_no_channels_here),
-                            style = tv.own.owntv.ui.theme.stageText(20, 500),
-                            color = tv.own.owntv.ui.theme.StageColors.Muted,
+                        tv.own.owntv.features.categorylock.CategoryEmptyState(
+                            if (selectedItem?.sealed == true) stringResource(R.string.content_category_locked_placeholder) else if (searchQuery.isNotBlank()) stringResource(R.string.content_no_channels_found, searchQuery.trim()) else stringResource(R.string.content_no_channels_here),
+                            sealed = selectedItem?.sealed == true, pinFocus = firstItemFocus, horizontalAlignment = Alignment.CenterHorizontally,
+                            onEnterPin = { selectedItem?.let { listPin.askedFromList(); lockVm.open(tv.own.owntv.core.model.MediaType.LIVE, it.key) } },
+                            onNavigateLeft = { openCategories() }.takeIf { lockedKey == null },
                         )
                     }
                 } else {
@@ -818,8 +822,7 @@ fun LiveScreen(
                                             // ◀ Categories: the sheet (Stage) or the column (Separate); pinned lists have none.
                                             androidx.compose.ui.input.key.Key.DirectionLeft -> when {
                                                 lockedKey != null -> false
-                                                separate -> { runCatching { railFocus.requestFocus() }; true }
-                                                else -> { categoriesOpen = true; true }
+                                                else -> { openCategories(); true }
                                             }
                                             // ▶ Schedule: next / later under the stage; nothing else to the right.
                                             androidx.compose.ui.input.key.Key.DirectionRight -> { runCatching { scheduleFocus.requestFocus() }; true }
@@ -1136,8 +1139,18 @@ fun LiveScreen(
         RailCategoryMenu(
             item, item.displayLabel(), vm::categoryRestorePlan,
             onHide = vm::hideCategory, onMove = vm::enterCategoryMoveMode, onRestore = vm::restoreCategory,
+            onToggleLock = { lockVm.toggleLock(tv.own.owntv.core.model.MediaType.LIVE, it) },
+            onSealedAction = { key, action -> lockVm.open(tv.own.owntv.core.model.MediaType.LIVE, key, action) },
             onClose = { contextCategory = null },
         )
+    }
+    tv.own.owntv.features.categorylock.CategoryLockPrompts(
+        tv.own.owntv.core.model.MediaType.LIVE,
+        onAction = { key, action -> action.run(key, vm::hideCategory, vm::enterCategoryMoveMode, vm::restoreCategory) },
+    ) { key, opened ->
+        if (listPin.takeClose(opened)) Unit
+        else if (opened && categoriesOpen) { categoriesOpen = false; focusChannelList(); listPin.openedFromCategories() }
+        else railFocusRow = railItems.indexOfFirst { it.key == key }.takeIf { it >= 0 }
     }
 }
 
