@@ -106,9 +106,11 @@ open class MainActivity : ComponentActivity() {
 
     override fun onStop() {
         super.onStop()
-        // Backgrounded (Home / another app), exited, or logged out: stop playback and free the demuxer
-        // cache + decoder buffers — holding them while invisible got the process LMK-killed on real TVs.
-        // Every engine: mpv, the Live engine (its audio must stop too), each Multiview tile and the hero.
+        // Backgrounded (Home / another app), exited, logged out, or the picture-in-picture window closed:
+        // stop playback and free the demuxer cache + decoder buffers — holding them while invisible got
+        // the process LMK-killed on real TVs. Every engine: mpv, the Live engine (its audio must stop
+        // too), each Multiview tile and the hero. The one place the app hears it went to the background;
+        // a picture-in-picture window only pauses the activity, so playback there never reaches it.
         if (!isChangingConfigurations) engines.onAppBackgrounded()
         window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
     }
@@ -157,6 +159,7 @@ open class MainActivity : ComponentActivity() {
         // postSplashScreenTheme (Theme.OwnTV), so the activity ends up in the same theme as before.
         val splash = installSplashScreen()
         super.onCreate(savedInstanceState)
+        tv.own.owntv.features.pip.PictureInPictureWindow.attach(this, get())
         val splashDeadline = SystemClock.uptimeMillis() + SPLASH_TIMEOUT_MS
         splash.setKeepOnScreenCondition { !contentReady && SystemClock.uptimeMillis() < splashDeadline }
         pendingDeepLink = LauncherDeepLink.parse(intent.data)

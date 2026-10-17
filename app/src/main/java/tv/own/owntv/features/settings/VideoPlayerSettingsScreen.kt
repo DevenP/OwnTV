@@ -103,7 +103,7 @@ internal fun videoSectionCounts(vm: SettingsViewModel): List<Int> {
         4 + (if (livePreview) 1 else 0) + (if (timeshift) 1 else 0),
         3 + (if (perPlaylist) 3 else 0),
         2,
-        2 + (if (multiview) 1 else 0),
+        2 + (if (multiview) 1 else 0) + (if (tv.own.owntv.features.pip.PictureInPicture.supported()) 1 else 0),
         8, 3, 2, 2,
     )
 }
@@ -183,6 +183,7 @@ internal val VIDEO_QUICK_ROWS: List<VideoQuickRef> = listOf(
     VideoQuickRef("vp_multiview", SECTION_MULTIVIEW, OwnTVIcon.LIST_GRID, R.string.settings_multiview, R.string.settings_multiview_description),
     VideoQuickRef("vp_multiview_tiles", SECTION_MULTIVIEW, OwnTVIcon.LIST_GRID, R.string.settings_multiview_tiles_max, R.string.settings_multiview_description),
     VideoQuickRef("vp_mini", SECTION_MULTIVIEW, OwnTVIcon.PIP, R.string.settings_mini_player_root, R.string.settings_mini_player_root_description),
+    VideoQuickRef("vp_pip", SECTION_MULTIVIEW, OwnTVIcon.PIP, R.string.settings_pip_on_leave, R.string.settings_pip_on_leave_description),
     VideoQuickRef("vp_volume", SECTION_SOUND, OwnTVIcon.VOLUME_HIGH, R.string.settings_default_volume, R.string.settings_default_volume_description),
     VideoQuickRef("vp_reset_volume", SECTION_SOUND, OwnTVIcon.VOLUME_HIGH, R.string.settings_reset_saved_volume, R.string.settings_reset_saved_volume_description),
     VideoQuickRef("vp_surround", SECTION_SOUND, OwnTVIcon.AUDIO, R.string.settings_surround_sound),
@@ -198,8 +199,9 @@ internal val VIDEO_QUICK_ROWS: List<VideoQuickRef> = listOf(
     VideoQuickRef("vp_autoplay", SECTION_RESUME, OwnTVIcon.AUTOPLAY_NEXT, R.string.settings_autoplay_next, R.string.settings_autoplay_next_description),
     VideoQuickRef("vp_measured_stats", SECTION_DIAGNOSTICS, OwnTVIcon.VIDEO, R.string.settings_measured_stats, R.string.settings_measured_stats_description),
     VideoQuickRef("vp_logging", SECTION_DIAGNOSTICS, OwnTVIcon.INFO, R.string.settings_detailed_playback_logging, R.string.settings_detailed_playback_logging_description),
-    // No row, so nothing to find or pin, on a TV whose decoders cannot tunnel.
+    // No row, so nothing to find or pin, on a TV whose decoders cannot tunnel or has no picture-in-picture.
 ).filter { it.key != "vp_tunneled" || tv.own.owntv.player.Tunneling.supported }
+    .filter { it.key != "vp_pip" || tv.own.owntv.features.pip.PictureInPicture.supported() }
 
 /**
  * What a Video player row pinned to Quick shows and does over there.
@@ -258,6 +260,11 @@ internal fun videoQuickBinding(key: String, vm: SettingsViewModel): VideoQuickBi
         "vp_multiview" -> {
             val on by vm.multiviewEnabled.collectAsStateWithLifecycle()
             toggle(onOff(on), on) { vm.setMultiviewEnabled(!on) }
+        }
+        "vp_pip" -> {
+            val pip = org.koin.compose.koinInject<tv.own.owntv.features.pip.PictureInPicture>()
+            val on by pip.enabled.collectAsStateWithLifecycle()
+            toggle(onOff(on), on) { pip.setEnabled(!on) }
         }
         "vp_multiview_tiles" -> {
             // The ceiling is picked in a dialog, so this one links back to the row rather than
@@ -1187,6 +1194,18 @@ internal fun VideoPlayerGroupRows(
             modifier = Modifier.focusRequester(dialogRowFocus.getValue(Dialog.MINI_PLAYER)),
             onClick = { savedScroll = scrollState.value; dialog = Dialog.MINI_PLAYER },
         )
+        val pip = org.koin.compose.koinInject<tv.own.owntv.features.pip.PictureInPicture>()
+        if (pip.supported) {
+            val pipOn by pip.enabled.collectAsStateWithLifecycle()
+            KeyedSettingRow(
+                quickKey = "vp_pip",
+                icon = OwnTVIcon.PIP,
+                title = stringResource(R.string.settings_pip_on_leave),
+                desc = stringResource(R.string.settings_pip_on_leave_description),
+                value = SettingValue.Switch(pipOn),
+                onClick = { pip.setEnabled(!pipOn) },
+            )
+        }
                     }
                     SECTION_SOUND -> {
         KeyedSettingRow(
