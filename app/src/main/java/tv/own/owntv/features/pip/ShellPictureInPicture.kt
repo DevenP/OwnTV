@@ -71,6 +71,8 @@ internal fun rememberShellPictureInPicture(
     }
     val source = remember(pip) {
         Modifier.onGloballyPositioned { coordinates ->
+            // In the window the player fills it; only the full-screen layout says where the window opens from.
+            if (pip.inWindow.value) return@onGloballyPositioned
             val r = coordinates.boundsInWindow()
             pip.onPlayerBounds(PipBounds(r.left.roundToInt(), r.top.roundToInt(), r.right.roundToInt(), r.bottom.roundToInt()))
         }
