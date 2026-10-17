@@ -35,6 +35,8 @@ internal fun EpgRow(
     rowFocus: FocusRequester?,
     actionsFocus: FocusRequester,
     keepPanel: Boolean,
+    priority: String?,
+    orderActions: List<StageAction>,
     onFocused: () -> Unit,
     onResync: () -> Unit,
     onCancelSync: () -> Unit,
@@ -68,7 +70,7 @@ internal fun EpgRow(
         else -> null
     }
     val back = rowFocus ?: remember { FocusRequester() }
-    val actions = epgSourceActions(deleting, syncState, onResync, onCancelSync, onEdit, onDelete)
+    val actions = epgSourceActions(deleting, syncState, orderActions, onResync, onCancelSync, onEdit, onDelete)
     StageSettingRow(
         icon = OwnTVIcon.EPG,
         title = source.name,
@@ -93,6 +95,7 @@ internal fun EpgRow(
             ),
             extra = {
                 Text(status, style = tv.own.owntv.ui.theme.stageText(17, 500), color = if (failed) tv.own.owntv.ui.theme.StageColors.Danger else tv.own.owntv.ui.theme.StageColors.Muted)
+                priority?.let { Text(it, style = tv.own.owntv.ui.theme.stageText(17, 500), color = tv.own.owntv.ui.theme.StageColors.Muted) }
                 if (actions.isNotEmpty()) StageActionColumn(actions, back, actionsFocus)
             },
         ),
@@ -147,11 +150,12 @@ private fun epgSourceStatus(
     }
 }
 
-/** Re-sync (Cancel while syncing), Edit and Delete for one guide's panel. */
+/** Re-sync (Cancel while syncing), Edit, the [orderActions] and Delete for one guide's panel. */
 @Composable
 private fun epgSourceActions(
     deleting: Boolean,
     syncState: EpgSyncState,
+    orderActions: List<StageAction>,
     onResync: () -> Unit,
     onCancelSync: () -> Unit,
     onEdit: () -> Unit,
@@ -166,6 +170,5 @@ private fun epgSourceActions(
             if (syncState.isActive) onCancelSync else onResync,
         ),
         StageAction(OwnTVIcon.PENCIL, stringResource(R.string.common_edit), onEdit),
-        StageAction(OwnTVIcon.TRASH, stringResource(R.string.common_delete), onDelete, danger = true),
-    )
+    ) + orderActions + StageAction(OwnTVIcon.TRASH, stringResource(R.string.common_delete), onDelete, danger = true)
 }

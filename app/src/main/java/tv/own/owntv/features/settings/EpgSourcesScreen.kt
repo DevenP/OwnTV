@@ -3,6 +3,7 @@ package tv.own.owntv.features.settings
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -114,28 +115,35 @@ fun EpgSourcesScreen(onBack: () -> Unit, modifier: Modifier = Modifier, startOnA
     ) {
         if (sources.isEmpty()) StageSettingsNote(stringResource(R.string.settings_epg_sources_empty), null)
         sources.forEachIndexed { index, source ->
-            val syncState by remember(source.id) { vm.observeSync(source.id) }
-                .collectAsStateWithLifecycle(EpgSyncState.Idle)
-            EpgRow(
-                source = source,
-                autoRefresh = autoRefreshMap[source.id] ?: EpgRefresh.OFF,
-                counts = { vm.counts(source.id) },
-                syncState = syncState,
-                deleting = source.id in deletingIds,
-                // Bind contextFocus to the acted-on row (restore target), firstRowFocus to row 0.
-                rowFocus = when {
-                    source.id == contextId -> contextFocus
-                    index == 0 -> firstRowFocus
-                    else -> null
-                },
-                actionsFocus = actionsFocus,
-                keepPanel = source.id == contextId,
-                onFocused = { contextId = source.id; contextIndex = index },
-                onResync = { contextId = source.id; contextIndex = index; vm.resync(source) },
-                onCancelSync = { contextId = source.id; contextIndex = index; vm.cancelSync(source) },
-                onEdit = { contextId = source.id; contextIndex = index; editing = source },
-                onDelete = { contextId = source.id; contextIndex = index; confirmDelete = source },
-            )
+            // Keyed: Move up / Move down reorder the rows, and the moved guide keeps its panel.
+            key(source.id) {
+                val syncState by remember(source.id) { vm.observeSync(source.id) }
+                    .collectAsStateWithLifecycle(EpgSyncState.Idle)
+                EpgRow(
+                    source = source,
+                    autoRefresh = autoRefreshMap[source.id] ?: EpgRefresh.OFF,
+                    counts = { vm.counts(source.id) },
+                    syncState = syncState,
+                    deleting = source.id in deletingIds,
+                    // Bind contextFocus to the acted-on row (restore target), firstRowFocus to row 0.
+                    rowFocus = when {
+                        source.id == contextId -> contextFocus
+                        index == 0 -> firstRowFocus
+                        else -> null
+                    },
+                    actionsFocus = actionsFocus,
+                    keepPanel = source.id == contextId,
+                    priority = epgSourcePriorityLine(index, sources.size),
+                    orderActions = epgSourceOrderActions(sources.size) { up ->
+                        contextId = source.id; contextIndex = index; vm.move(source, up)
+                    },
+                    onFocused = { contextId = source.id; contextIndex = index },
+                    onResync = { contextId = source.id; contextIndex = index; vm.resync(source) },
+                    onCancelSync = { contextId = source.id; contextIndex = index; vm.cancelSync(source) },
+                    onEdit = { contextId = source.id; contextIndex = index; editing = source },
+                    onDelete = { contextId = source.id; contextIndex = index; confirmDelete = source },
+                )
+            }
         }
     }
 
