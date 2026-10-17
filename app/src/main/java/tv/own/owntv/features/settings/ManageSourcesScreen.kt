@@ -85,6 +85,7 @@ fun ManageSourcesScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
     var editingSource by remember { mutableStateOf<SourceEntity?>(null) }
     var confirmDelete by remember { mutableStateOf<SourceEntity?>(null) }
     var resyncChoice by remember { mutableStateOf<SourceEntity?>(null) }
+    var nameCleanup by remember { mutableStateOf<SourceEntity?>(null) }
     // Set while the "this will stop playback and take a while" confirmation is on screen.
     var confirmRetest by remember { mutableStateOf<SourceEntity?>(null) }
     val addFocus = remember { FocusRequester() }
@@ -315,12 +316,15 @@ fun ManageSourcesScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
                         onEdit = { contextId = source.id; contextIndex = index; editingSource = source },
                         onTest = { contextId = source.id; contextIndex = index; vm.testSource(source) },
                         onResync = { contextId = source.id; contextIndex = index; resyncChoice = source },
+                        onCleanNames = { contextId = source.id; contextIndex = index; nameCleanup = source },
                         onCancelSync = { contextId = source.id; contextIndex = index; vm.cancelResync(source) },
                         onDelete = { contextId = source.id; contextIndex = index; confirmDelete = source },
                     )
                 }
             }
         }
+
+        nameCleanup?.let { src -> ChannelNameCleanupHost(src, onNeedsResync = { vm.resync(it) }, onDismiss = { nameCleanup = null }) }
 
         resyncChoice?.let { src ->
             ResyncChoiceDialog(
@@ -382,6 +386,7 @@ private fun SourceRow(
     onEdit: () -> Unit,
     onTest: () -> Unit,
     onResync: () -> Unit,
+    onCleanNames: () -> Unit,
     onCancelSync: () -> Unit,
     onDelete: () -> Unit,
 ) {
@@ -422,6 +427,7 @@ private fun SourceRow(
             stringResource(if (syncState.isActive) R.string.settings_sources_cancel else R.string.settings_sources_resync),
             if (syncState.isActive) onCancelSync else onResync,
         ),
+        StageAction(OwnTVIcon.SPARKLE, stringResource(R.string.settings_sources_clean_names), onCleanNames),
         StageAction(OwnTVIcon.TRASH, stringResource(R.string.settings_sources_delete), onDelete, danger = true),
     )
     StageSettingRow(
