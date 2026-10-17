@@ -652,7 +652,8 @@ creates a profile, and in Settings → **Profile** when you edit one.
 - **Picture-in-picture** — with Settings → Watching & recording → **Picture-in-picture when leaving
   the app** on (off by default), pressing **Home** while a video plays full screen or in the mini-player
   keeps it playing in a small window. Open OwnTV again for full screen; close the window to stop. Not
-  in Multiview, and only on TVs that offer picture-in-picture.
+  in Multiview, not when OwnTV itself opens another app (an external player, a trailer on YouTube),
+  and only on TVs that offer picture-in-picture.
 
 ### 🎧 Audio Mode — listen with the screen free
 **Where:** the **headphones** button on the player controls

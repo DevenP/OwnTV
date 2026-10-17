@@ -80,6 +80,7 @@ open class MainActivity : ComponentActivity() {
     private val previewEngine: tv.own.owntv.player.LivePreviewEngine by inject()
     private val heroPreviewEngine: tv.own.owntv.player.HeroPreviewEngine by inject()
     private val engines: tv.own.owntv.player.PlaybackEngines by inject()
+    private val handOff: tv.own.owntv.features.pip.AppHandOff by inject()
     // Activity-scoped: the same instance Compose retrieves via koinViewModel() inside setContent.
     private val shellViewModel: ShellViewModel by viewModel()
     // The sole locale authority (SharedPreferences-backed; see docs/internationalization.md 0b).
@@ -112,7 +113,18 @@ open class MainActivity : ComponentActivity() {
         // too), each Multiview tile and the hero. The one place the app hears it went to the background;
         // a picture-in-picture window only pauses the activity, so playback there never reaches it.
         if (!isChangingConfigurations) engines.onAppBackgrounded()
+        handOff.onActivityStopped()
         window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
+    }
+
+    override fun onResume() {
+        super.onResume()
+        handOff.onActivityResumed()
+    }
+
+    /** Every screen this activity opens (a trailer in YouTube, a system settings page) is a hand-off. */
+    override fun startActivity(intent: Intent, options: Bundle?) {
+        tv.own.owntv.features.pip.startAsHandOff(intent) { super.startActivity(it, options) }
     }
 
     override fun onStart() {

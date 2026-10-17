@@ -15,6 +15,9 @@ import org.koin.core.context.GlobalContext
  *
  * The option is stored on the device, not per profile, in SharedPreferences: it is about how this TV
  * behaves when the user presses Home, and it must be readable synchronously when the activity starts.
+ *
+ * Main thread only. Every change reaches the window at once, not on a later frame, so a window held
+ * for an [AppHandOff] is already off when the other screen starts.
  */
 internal class PictureInPicture(context: Context) {
 
@@ -25,18 +28,21 @@ internal class PictureInPicture(context: Context) {
     private val _enabled = MutableStateFlow(prefs.getBoolean(KEY_ON_LEAVE, false))
     val enabled: StateFlow<Boolean> = _enabled.asStateFlow()
 
-    private val _offer = MutableStateFlow<PipAspect?>(null)
+    private var offered: PipAspect? = null
+    private var held = false
 
     /** The window to open if the user leaves now; null when leaving should stop playback as it always has. */
-    val offer: StateFlow<PipAspect?> = _offer.asStateFlow()
-
-    private val _playerBounds = MutableStateFlow<PipBounds?>(null)
+    val windowOffer: PipAspect? get() = if (held) null else offered
 
     /** Where the player is laid out in the window, for the window's opening animation. */
-    val playerBounds: StateFlow<PipBounds?> = _playerBounds.asStateFlow()
+    var playerBounds: PipBounds? = null
+        private set
 
     private val _inWindow = MutableStateFlow(false)
     val inWindow: StateFlow<Boolean> = _inWindow.asStateFlow()
+
+    private var window: ((PipAspect?, PipBounds?) -> Unit)? = null
+    private var published: Pair<PipAspect?, PipBounds?>? = null
 
     fun setEnabled(on: Boolean) {
         prefs.edit { putBoolean(KEY_ON_LEAVE, on) }
@@ -44,15 +50,44 @@ internal class PictureInPicture(context: Context) {
     }
 
     fun offer(aspect: PipAspect?) {
-        _offer.value = aspect
+        offered = aspect
+        publish()
+    }
+
+    /** True while OwnTV opens a screen of another app: leaving for it must not open the window. */
+    fun holdWindow(hold: Boolean) {
+        held = hold
+        publish()
     }
 
     fun onPlayerBounds(bounds: PipBounds) {
-        _playerBounds.value = bounds
+        playerBounds = bounds
+        publish()
     }
 
     fun onWindowChanged(inPictureInPicture: Boolean) {
         _inWindow.value = inPictureInPicture
+    }
+
+    /** [apply] receives every change of the window's settings, starting with the current ones. */
+    fun bindWindow(apply: (PipAspect?, PipBounds?) -> Unit) {
+        window = apply
+        published = null
+        publish()
+    }
+
+    fun unbindWindow(apply: (PipAspect?, PipBounds?) -> Unit) {
+        if (window === apply) window = null
+    }
+
+    private fun publish() {
+        val apply = window ?: return
+        val aspect = windowOffer
+        // Without a window to offer, where the player sits changes nothing Android is told.
+        val next = aspect to playerBounds?.takeIf { aspect != null }
+        if (next == published) return
+        published = next
+        apply(next.first, next.second)
     }
 
     companion object {

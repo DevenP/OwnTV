@@ -5,14 +5,13 @@ import android.graphics.Rect
 import android.os.Build
 import android.util.Rational
 import androidx.activity.ComponentActivity
-import androidx.lifecycle.lifecycleScope
-import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.launch
+import androidx.lifecycle.DefaultLifecycleObserver
+import androidx.lifecycle.LifecycleOwner
 
 /**
  * The activity side of picture-in-picture. Android 12+ moves the activity into the window by itself
- * on Home (auto-enter, kept in step with [PictureInPicture.offer]); older versions are asked to in
- * `onUserLeaveHint`, the callback for "the user is leaving", which a dialog or a screen of our own
+ * on Home (auto-enter, kept in step with [PictureInPicture.windowOffer]); older versions are asked to
+ * in `onUserLeaveHint`, the callback for "the user is leaving", which a dialog or a screen of our own
  * does not trigger.
  *
  * Nothing here stops playback. In the window the activity is only paused, so the player keeps going;
@@ -27,16 +26,19 @@ internal object PictureInPictureWindow {
         activity.addOnPictureInPictureModeChangedListener { info -> pip.onWindowChanged(info.isInPictureInPictureMode) }
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.S) {
             activity.addOnUserLeaveHintListener {
-                val aspect = pip.offer.value ?: return@addOnUserLeaveHintListener
+                val aspect = pip.windowOffer ?: return@addOnUserLeaveHintListener
                 if (activity.isInPictureInPictureMode) return@addOnUserLeaveHintListener
                 // A TV that lists the feature but refuses the call simply stops playback as before.
-                runCatching { activity.enterPictureInPictureMode(params(aspect, pip.playerBounds.value)) }
+                runCatching { activity.enterPictureInPictureMode(params(aspect, pip.playerBounds)) }
             }
         }
-        activity.lifecycleScope.launch {
-            pip.offer.combine(pip.playerBounds) { aspect, bounds -> params(aspect, bounds) }
-                .collect { params -> runCatching { activity.setPictureInPictureParams(params) } }
+        val apply: (PipAspect?, PipBounds?) -> Unit = { aspect, bounds ->
+            runCatching { activity.setPictureInPictureParams(params(aspect, bounds)) }
         }
+        pip.bindWindow(apply)
+        activity.lifecycle.addObserver(object : DefaultLifecycleObserver {
+            override fun onDestroy(owner: LifecycleOwner) = pip.unbindWindow(apply)
+        })
     }
 
     private fun params(aspect: PipAspect?, playerBounds: PipBounds?): PictureInPictureParams {
