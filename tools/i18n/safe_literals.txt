@@ -492,6 +492,7 @@
 1	technical	app/src/main/java/tv/own/owntv/features/settings/SettingsHelpTable.kt	vp_volume_leveling
 2	technical	app/src/main/java/tv/own/owntv/features/settings/SettingsHelpTable.kt	vp_zoom
 1	technical	app/src/main/java/tv/own/owntv/features/settings/SettingsLivePreview.kt	w780
+1	empty	app/src/main/java/tv/own/owntv/features/settings/SettingsPickerDialogs.kt	\0
 5	technical	app/src/main/java/tv/own/owntv/features/settings/SettingsStage.kt	\0
 1	technical	app/src/main/java/tv/own/owntv/features/settings/SettingsStage.kt	·
 1	technical	app/src/main/java/tv/own/owntv/features/settings/SettingsStage.kt	▲ ▼
@@ -517,7 +518,7 @@
 1	log	app/src/main/java/tv/own/owntv/features/settings/SettingsViewModel.kt	setAndroidTvHomeEnabled enabled=$enabled
 1	protocol	app/src/main/java/tv/own/owntv/features/settings/SettingsViewModel.kt	timed out
 1	protocol	app/src/main/java/tv/own/owntv/features/settings/SettingsViewModel.kt	unknown host
-16	empty	app/src/main/java/tv/own/owntv/features/settings/VideoPlayerSettingsScreen.kt	\0
+15	empty	app/src/main/java/tv/own/owntv/features/settings/VideoPlayerSettingsScreen.kt	\0
 5	technical	app/src/main/java/tv/own/owntv/features/settings/VideoPlayerSettingsScreen.kt	${src.name} · $value
 1	locale	app/src/main/java/tv/own/owntv/features/settings/VideoPlayerSettingsScreen.kt	,
 1	technical	app/src/main/java/tv/own/owntv/features/settings/VideoPlayerSettingsScreen.kt	-1
