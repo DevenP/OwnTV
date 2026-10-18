@@ -21,3 +21,9 @@ fun requiresSettingsPin(hasPin: Boolean, enabled: Boolean, unlocked: Boolean): B
 
 fun SettingsPinLock.requiresPin(unlocked: Boolean): Boolean =
     requiresSettingsPin(hasPin = pin != null, enabled = askOnOpen, unlocked = unlocked)
+
+/**
+ * Whether a page outside Settings that can restore or copy settings (Backup & Restore, Local sync)
+ * stays shut: like Settings, and also while the lock is still being read.
+ */
+fun SettingsPinLock.guardsPage(unlocked: Boolean): Boolean = !loaded || requiresPin(unlocked)

@@ -29,7 +29,6 @@ internal fun PinLockedScreen(
     onDismiss: () -> Unit,
     modifier: Modifier = Modifier,
 ) {
-    var pinError by remember { mutableStateOf(false) }
     Column(
         modifier = modifier
             .padding(start = 6.dp, end = 6.dp, bottom = 6.dp, top = tv.own.owntv.features.shell.components.StageContentTop)
@@ -44,6 +43,16 @@ internal fun PinLockedScreen(
             modifier = Modifier.padding(top = 10.mpx),
         )
     }
+    PinPrompt(pin = pin, onUnlock = onUnlock, onDismiss = onDismiss)
+}
+
+/**
+ * The PIN prompt on its own, for a door that stays on screen behind it. A wrong PIN keeps the prompt
+ * up and says so; Back or Cancel calls [onDismiss].
+ */
+@Composable
+internal fun PinPrompt(pin: String, onUnlock: () -> Unit, onDismiss: () -> Unit) {
+    var pinError by remember { mutableStateOf(false) }
     PinDialog(
         title = stringResource(if (pinError) R.string.settings_customize_wrong_pin else R.string.settings_customize_enter_pin),
         onSubmit = { entered ->

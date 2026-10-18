@@ -33,4 +33,18 @@ class SettingsPinLockTest {
         val lock = SettingsPinLock(loaded = true, profileId = 1L, pin = "salt:hash", askOnOpen = false)
         assertFalse(lock.requiresPin(unlocked = false))
     }
+
+    @Test
+    fun `pages that restore or copy settings stay shut while the lock is still loading`() {
+        assertTrue(SettingsPinLock().guardsPage(unlocked = false))
+        assertFalse(SettingsPinLock(loaded = true, profileId = 1L).guardsPage(unlocked = false))
+    }
+
+    @Test
+    fun `pages that restore or copy settings follow the Settings lock once it is known`() {
+        val lock = SettingsPinLock(loaded = true, profileId = 1L, pin = "salt:hash", askOnOpen = true)
+        assertTrue(lock.guardsPage(unlocked = false))
+        assertFalse(lock.guardsPage(unlocked = true))
+        assertFalse(lock.copy(askOnOpen = false).guardsPage(unlocked = false))
+    }
 }
