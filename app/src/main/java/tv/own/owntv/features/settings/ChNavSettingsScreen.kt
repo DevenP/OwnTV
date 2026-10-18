@@ -170,6 +170,7 @@ fun ChNavSettingsScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
             modifier = Modifier.focusRequester(downSkipFocus),
             help = settingHelp(null, downTitle, downDesc, downValue, pinnable = false),
         )
+        PlayerButtonsSettingsRows(scrollState)
     }
 
     val warnText = stringResource(R.string.settings_large_skips_warning)
