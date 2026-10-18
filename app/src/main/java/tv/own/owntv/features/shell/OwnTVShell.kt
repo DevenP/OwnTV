@@ -1,6 +1,5 @@
 package tv.own.owntv.features.shell
 
-import tv.own.owntv.ui.stage.stageGlass
 import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.focusGroup
@@ -2002,24 +2001,6 @@ private const val GOAL_TOAST_MS = 8_000L
 
 /** Long enough to read "Auto-matched 12 channels. 40 channels need review." from the sofa. */
 private const val EPG_MATCH_TOAST_MS = 6_000L
-
-/** A thin bar shown above the browse UI when the device loses internet. */
-@Composable
-private fun OfflineBanner() {
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .stageGlass(0.dp, overContent = true)
-            .padding(horizontal = 24.dp, vertical = 8.dp),
-        verticalAlignment = Alignment.CenterVertically,
-        horizontalArrangement = Arrangement.Center,
-    ) {
-        Text(
-            stringResource(R.string.content_offline_banner),
-            style = tv.own.owntv.ui.theme.stageText(25, 600),
-            color = tv.own.owntv.ui.theme.StageColors.Text,
-        ) }
-    }
 
 /** The line under a rail item at Size = Extra wide; real data only, so most items can have none. */
 @Composable
