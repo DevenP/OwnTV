@@ -2662,19 +2662,6 @@ internal fun SettingsRowMenu(
     }
 }
 
-/** Batch 4 · one searchable settings row: its group breadcrumb, title, extra keywords, and action. */
-private class SettingsSearchEntry(
-    val group: String,
-    val title: String,
-    keywords: String,
-    val icon: OwnTVIcon,
-    val tone: TileTone,
-    val chip: String? = null,
-    val chipTone: TileTone = TileTone.PRIMARY,
-    val showChevron: Boolean = true,
-    val onClick: () -> Unit,
-)
-
 /** What a root row shows and does on its Stage page beyond its chip. */
 private class RowExtra(
     val value: SettingValue? = null,
