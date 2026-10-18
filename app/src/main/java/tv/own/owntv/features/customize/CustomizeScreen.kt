@@ -83,6 +83,8 @@ fun CustomizeScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
     val rangeEndKey by vm.rangeEndKey.collectAsStateWithLifecycle()
     val rangeSelectedKeys by vm.rangeSelectedKeys.collectAsStateWithLifecycle()
     val pinLock by vm.pinLock.collectAsStateWithLifecycle()
+    val settingsPinVm: tv.own.owntv.features.settings.lock.SettingsPinViewModel = koinViewModel()
+    val askForSettingsPin = settingsPinVm.lock.collectAsStateWithLifecycle().value.askOnOpen
     val selectedCategory by vm.selectedCategory.collectAsStateWithLifecycle()
     var renaming by remember { mutableStateOf<CustomizeCatRow?>(null) }
     var showNewCatPicker by remember { mutableStateOf(false) }
@@ -366,7 +368,7 @@ fun CustomizeScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
     if (showMoreMenu) {
         PickerDialog(
             title = stringResource(R.string.common_nav_more),
-            options = customizeMoreOptions(hideNewCategories = hideNewCategories, hasPin = pinLock.pin != null),
+            options = customizeMoreOptions(hideNewCategories, hasPin = pinLock.pin != null, askForSettingsPin = askForSettingsPin),
             selected = "",
             onSelect = { value ->
                 showMoreMenu = false
@@ -379,6 +381,7 @@ fun CustomizeScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
                         editingPin = if (value == "PIN_SET") PinEdit.SET else PinEdit.CHANGE
                     }
                     "PIN_REMOVE" -> editingPin = PinEdit.REMOVE
+                    "SETTINGS_PIN" -> settingsPinVm.setAskOnOpen(!askForSettingsPin)
                     CustomizeOption.RESTORE.name -> restoringDefaults = true
                 }
             },
