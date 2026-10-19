@@ -440,7 +440,7 @@ fun OwnTVShell(
     val resumeSettings = koinInject<tv.own.owntv.core.settings.SettingsRepository>()
     val startupChannelUnavailable = androidx.compose.ui.res.stringResource(tv.own.owntv.R.string.settings_startup_channel_unavailable)
     LaunchedEffect(Unit) {
-        if (playerMode != PlayerMode.NONE) return@LaunchedEffect
+        if (playerMode != PlayerMode.NONE) { StartupGate.settled = true; return@LaunchedEffect }
         val pid = resumeSettings.activeProfileId.first()
         when (val startupMode = resumeSettings.startupMode(pid).first()) {
             tv.own.owntv.core.settings.StartupMode.LAST_CHANNEL -> {
@@ -514,6 +514,8 @@ fun OwnTVShell(
             }
             tv.own.owntv.core.settings.StartupMode.HOME -> Unit
         }
+        tv.own.owntv.core.util.Perf.stamp("startup-settled")
+        StartupGate.settled = true
     }
 
     // Movies/Series/Live load on first open via their reactive Paging flows — their indexed first page is
