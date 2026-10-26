@@ -1,6 +1,7 @@
 package tv.own.owntv.ui.components
 
 import android.graphics.Bitmap
+import android.util.LruCache
 import androidx.compose.animation.Crossfade
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -25,39 +26,15 @@ import coil3.toBitmap
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import tv.own.owntv.ui.theme.stackBlur
-import java.util.LinkedHashMap
 
-/** Access-ordered LRU. [get] refreshes recency. Evicts eldest when size exceeds [maxEntries]. */
-internal class LruMap<V>(private val maxEntries: Int) {
-    private val map = object : LinkedHashMap<String, V>(maxEntries.coerceAtLeast(1), 0.75f, true) {
-        override fun removeEldestEntry(eldest: MutableMap.MutableEntry<String, V>?): Boolean =
-            size > maxEntries
-    }
-
-    fun get(url: String): V? = synchronized(map) { map[url] }
-
-    fun put(url: String, value: V) {
-        synchronized(map) { map[url] = value }
-    }
-
-    fun size(): Int = synchronized(map) { map.size }
-}
-
-internal class BlurCache(maxEntries: Int = 8) {
-    private val lru = LruMap<Bitmap>(maxEntries)
-
-    fun get(url: String): Bitmap? = lru.get(url)
-
-    fun put(url: String, bmp: Bitmap) = lru.put(url, bmp)
-
-    fun size(): Int = lru.size()
-}
-
-internal val blurCache = BlurCache(8)
+/** The last few blurred backdrops by poster URL, so stepping back through results does not blur again. */
+private val blurCache = LruCache<String, Bitmap>(8)
 
 /**
- * 160×90 blur off the main thread. Radius 3 matches the old blur(36.mpx).
- * Previous backdrop stays until the new one is ready.
+ * A poster blurred into a backdrop, at 160×90 and off the main thread. `Modifier.blur` is GPU-only, so it
+ * drew a sharp poster on Android 11 and older, and blurring the full-size poster every frame was costly
+ * elsewhere. Radius 3 at this size matches the old 36 px blur. The previous backdrop stays until the new
+ * one is ready.
  */
 @Composable
 fun BlurredPoster(url: String, modifier: Modifier = Modifier) {
@@ -66,31 +43,18 @@ fun BlurredPoster(url: String, modifier: Modifier = Modifier) {
     LaunchedEffect(url) {
         val bmp = blurCache.get(url) ?: withContext(Dispatchers.Default) {
             val result = SingletonImageLoader.get(context).execute(
-                ImageRequest.Builder(context)
-                    .data(url)
-                    .size(160, 90)
-                    .allowHardware(false)
-                    .build(),
+                ImageRequest.Builder(context).data(url).size(160, 90).allowHardware(false).build(),
             )
-            if (result is SuccessResult) {
-                val blurred = stackBlur(result.image.toBitmap(), radius = 3)
-                blurCache.put(url, blurred)
-                blurred
-            } else {
-                null
-            }
+            // A copy: the blur works in place, and Coil may still hold the decoded bitmap in its cache.
+            (result as? SuccessResult)?.image?.toBitmap()?.copy(Bitmap.Config.ARGB_8888, true)
+                ?.let { stackBlur(it, radius = 3) }
+                ?.also { blurCache.put(url, it) }
         }
         if (bmp != null) shown = bmp.asImageBitmap()
     }
     Crossfade(targetState = shown, modifier = modifier, animationSpec = tween(200)) { img ->
         if (img != null) {
-            Image(
-                img,
-                null,
-                Modifier.fillMaxSize(),
-                contentScale = ContentScale.Crop,
-                filterQuality = FilterQuality.Low,
-            )
+            Image(img, null, Modifier.fillMaxSize(), contentScale = ContentScale.Crop, filterQuality = FilterQuality.Low)
         }
     }
 }

@@ -157,8 +157,8 @@ class OwnTVApp : Application(), SingletonImageLoader.Factory, androidx.work.Conf
      * App-wide Coil loader that fetches images through the app's OkHttpClient — so posters/logos get
      * the same player-style User-Agent and connection pooling our IPTV requests use (some panels reject
      * default UAs). Crossfade (120 ms, off on low-RAM) smooths the grid as images stream in. The memory
-     * cache is 20% of the heap (12% on low-RAM), clamped to 24–96 MB — on a 4K TV every megabyte
-     * belongs to the video pipeline, not to channel-logo bitmaps.
+     * cache stays well below Coil's default ~25% — on a 4K TV every megabyte belongs to the video
+     * pipeline, not to channel-logo bitmaps: 15% of the heap up to 64 MB, and 10% on low-RAM devices.
      */
     override fun newImageLoader(context: PlatformContext): ImageLoader {
         val lowRam = context.getSystemService(android.app.ActivityManager::class.java)?.isLowRamDevice == true
@@ -231,10 +231,8 @@ class OwnTVApp : Application(), SingletonImageLoader.Factory, androidx.work.Conf
     }
 }
 
-private const val IMAGE_CACHE_MB = 1024L * 1024
-
-/** 20% of the heap (12% on low-RAM), clamped to 24–96 MB. */
+/** 15% of the heap, capped at 64 MB; low-RAM devices keep 10%. */
 internal fun imageMemoryCacheBytes(heapBytes: Long, lowRam: Boolean): Long {
-    val fraction = if (lowRam) 0.12 else 0.20
-    return (heapBytes * fraction).toLong().coerceIn(24L * IMAGE_CACHE_MB, 96L * IMAGE_CACHE_MB)
+    if (lowRam) return (heapBytes * 0.10).toLong()
+    return minOf((heapBytes * 0.15).toLong(), 64L * 1024 * 1024)
 }

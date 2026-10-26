@@ -631,16 +631,17 @@ private fun PosterPanel(info: VodTitleInfo, series: Boolean, modifier: Modifier 
                 .background(Color.Black),
         ) {
             val frameH = maxHeight
+            val posterUrl = info.posterUrl
             if (!info.backdropUrl.isNullOrBlank()) {
                 AsyncImage(
                     model = info.backdropUrl, contentDescription = null, contentScale = ContentScale.Crop,
                     alignment = BiasAlignment(0f, -0.4f), modifier = Modifier.fillMaxSize(),
                 )
-            } else if (!info.posterUrl.isNullOrBlank()) {
-                BlurredPoster(url = info.posterUrl!!, modifier = Modifier.fillMaxSize())
+            } else if (!posterUrl.isNullOrBlank()) {
+                BlurredPoster(url = posterUrl, modifier = Modifier.fillMaxSize())
                 Box(Modifier.fillMaxSize().background(Color.Black.copy(alpha = 0.45f)))
                 AsyncImage(
-                    model = info.posterUrl, contentDescription = null, contentScale = ContentScale.Fit,
+                    model = posterUrl, contentDescription = null, contentScale = ContentScale.Fit,
                     modifier = Modifier.align(Alignment.TopEnd).padding(end = 40.mpx, top = 36.mpx).height(frameH - 72.mpx).clip(RoundedCornerShape(14.mpx)),
                 )
             }
