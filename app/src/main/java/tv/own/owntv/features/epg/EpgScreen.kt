@@ -642,7 +642,7 @@ fun EpgScreen(
                         val timelinePxWidth = with(density) { timelineW.toPx() }
                         Box(
                             Modifier
-                                .padding(start = gx - 1.5.mpx, top = 38.mpx, bottom = 24.mpx)
+                                .padding(start = gx - 1.5.mpx, top = 38.mpx)
                                 .offset { IntOffset((pxAt(liveNow) - scrollPx).roundToInt(), 0) }
                                 .graphicsLayer {
                                     val x = pxAt(liveNow) - scrollPx
