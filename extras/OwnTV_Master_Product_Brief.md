@@ -536,7 +536,12 @@ same version.
 
 M3U playlists are line-streamed and Xtream `player_api` JSON is read with `android.util.JsonReader`,
 so a huge provider payload is never fully buffered. Typed M3U import routes `type=` / `tvg-type=`
-entries into Movies and Series. `SyncManager` inserts in chunked transactions with progress and
+entries into Movies and Series; an untagged entry whose link is a single video file (`.mp4`, `.mkv`…)
+goes to Movies, and an entry later re-tagged as a film or series leaves Live TV. A playlist that numbers
+none of its channels is numbered 1, 2, 3… in file order. A per-playlist **Clean channel names** option
+tidies country prefixes and trailing quality tags at sync time, while guide matching keeps using the
+provider's own names. Re-syncs diff by content hash and keep the provider's order without rewriting
+unchanged rows, so an unchanged re-sync writes almost nothing. `SyncManager` inserts in chunked transactions with progress and
 cancellation, with the database write on its own coroutine fed over a rendezvous channel — so
 downloading and parsing overlap with writing the previous batch. A truncated bulk list (HTTP 512)
 falls back to per-category fetching.
