@@ -563,6 +563,13 @@ fun EpgScreen(
                     body = stringResource(R.string.content_epg_add_description),
                     action = stringResource(R.string.content_epg_add), onAction = onAddEpg,
                 )
+                // The guide's channel ids aren't the playlist's: Auto-match pairs them by name, so offer it
+                // right here rather than leave the button in the toolbar for someone to find.
+                state.channels.isEmpty() && state.message == EpgMessage.MismatchedIds -> GuideEmpty(
+                    title = stringResource(R.string.content_epg_no_guide),
+                    body = epgMessageText(EpgMessage.MismatchedIds),
+                    action = stringResource(R.string.content_epg_match_button), actionIcon = OwnTVIcon.SPARKLE, onAction = vm::autoMatchEpg,
+                )
                 state.channels.isEmpty() -> GuideEmpty(title = state.message?.let { epgMessageText(it) } ?: stringResource(R.string.content_epg_no_guide))
                 else -> {
                     val gx = fx(48) + labelW
@@ -893,7 +900,7 @@ private fun GuideRow(
 
 /** An empty guide: what is missing, and — with no EPG added — the way to add one. */
 @Composable
-private fun GuideEmpty(title: String, body: String? = null, action: String? = null, onAction: () -> Unit = {}) {
+private fun GuideEmpty(title: String, body: String? = null, action: String? = null, actionIcon: OwnTVIcon = OwnTVIcon.ADD, onAction: () -> Unit = {}) {
     Box(Modifier.fillMaxSize().padding(bottom = 80.mpx), contentAlignment = Alignment.Center) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
             Text(title, style = stageText(24, 700), color = StageColors.Text, textAlign = TextAlign.Center, modifier = Modifier.widthIn(max = 900.mpx))
@@ -902,7 +909,7 @@ private fun GuideEmpty(title: String, body: String? = null, action: String? = nu
             }
             if (action != null) {
                 Spacer(Modifier.height(24.mpx))
-                StageButton(action, onClick = onAction, icon = OwnTVIcon.ADD, height = 56.mpx, textSize = 19)
+                StageButton(action, onClick = onAction, icon = actionIcon, height = 56.mpx, textSize = 19)
             }
         }
     }
