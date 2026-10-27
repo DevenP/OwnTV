@@ -338,6 +338,8 @@ profile: Home, last channel, Live Favorites, or one chosen channel.
   playlist(s) the guide is showing (a 400-channel playlist in about 3 s); confident matches
   apply automatically and the rest go to a review list. Matches are per profile and survive re-syncs.
   A **guide time offset** corrects a feed published in another time zone, globally or per channel.
+- **Several XMLTV feeds:** the order in EPG Sources is the guide priority — where two feeds list one
+  channel, the higher one is drawn and a lower one only fills its gaps.
 - **Multiple XMLTV feeds** merge into one guide. Opt-in: importing a playlist does not auto-download
   its guide. Each feed can use its own channel logos and has its own auto-refresh interval.
 - **Performance** — pre-loaded in the background; only your channels' programmes are stored; a

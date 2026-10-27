@@ -187,7 +187,8 @@ put. Switch it off and the next refresh brings the original names back.
 Pick **All playlists** or just one — it applies everywhere at once and survives a restart. A
 **DEFAULT** badge in Settings marks your default. When two are active, a small provider label appears
 beside categories and items so you always know which is which, and each row carries the playlist's
-short mark (for example **GOLD**).
+short mark (for example **GOLD**). With two or more playlists the pill's menu also has **Resync now**,
+for the playlist chosen (or all of them).
 
 ### 📶 Prefer HLS (Xtream only)
 **Where:** Add/Edit playlist
@@ -289,6 +290,7 @@ then the grid, opened at now with the now-line about a third of the way across.
 - **Order:** Provider, A–Z, Catch-up first or Favourites first. **Category** uses Live TV's own list.
   Its **Show** group: **Channels without guide**, and **Video preview** — off, the top shows the
   channel's logo instead of playing it (also off whenever Live TV's preview is off).
+- **Rewind mark:** a channel with catch-up shows the rewind icon after its name, as in the channel lists.
 - **The preview stays put while you browse:** moving through the rows does not change it. The first
   **OK** on a row brings that channel into the preview; **OK** again on it watches it full screen.
 
@@ -308,6 +310,9 @@ playlist offers.
 When two feeds list the same channel, the one higher on the list is used. Open a feed and choose
 **Move up** or **Move down** to set the order; a lower feed still fills any hours the higher one
 leaves empty.
+
+If a feed syncs but none of its channels match your playlist's, the feed says so; open the TV
+Guide, which then offers **Auto-match EPG** to pair them by name.
 
 > **Playlist has no channel logos?** Turn on **Use this guide's channel logos** on the feed. Logos
 > then come from the XMLTV guide instead; channels the feed has no logo for keep the playlist's one.

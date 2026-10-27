@@ -14,12 +14,17 @@
 - **🖼️ More posters kept in memory, so Home scrolls cleaner** (community PR #267 by @sarmadsoomro)
 - **📺 Smoother TV Guide scrolling** (community PR #266 by @sarmadsoomro)
 - **✨ Clean channel names: a Names option on each playlist** (community PR #283 by @Kevsosmooth)
+- **📋 EPG Sources: Move up / Move down set the guide priority** (community PR #277 by @Kevsosmooth)
+- **🎯 Guide offers Auto-match when an added guide matches no channel** (community PR #316 by @arch-fan)
+- **⏪ Rewind mark in the TV Guide; Resync now in the playlist menu** (community PR #305 by @sarmadsoomro)
 
 ### 🐛 Fixes
 - **Home: the last card of a row stays on screen when it has focus** (community PR #314 by @arch-fan)
 - **Setup: the choice cards line up when one has a shorter line** (community PR #315 by @arch-fan)
 - **The update popup's What's new scrolls with Up and Down** (community PR #291 by @camchis)
 - **Loading spinners use far less of the TV's processor; imports finish sooner**
+- **TV Guide: the now-line reaches the bottom** (community PR #303 by @spotandjake)
+- **Settings no longer shows "0 playlists" while loading**
 
 ## v5.2.1 — 2026-10-21
 
