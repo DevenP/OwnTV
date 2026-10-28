@@ -44,9 +44,7 @@ import tv.own.owntv.ui.stage.StagePoster
 import tv.own.owntv.ui.stage.StageSearchField
 import tv.own.owntv.ui.stage.StageSegmented
 import tv.own.owntv.ui.stage.StageTool
-import tv.own.owntv.ui.theme.StageColors
 import tv.own.owntv.ui.theme.mpx
-import tv.own.owntv.ui.theme.stageText
 import androidx.compose.foundation.focusGroup
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -97,7 +95,6 @@ import kotlinx.coroutines.launch
 import tv.own.owntv.features.live.LiveRailItem
 import tv.own.owntv.features.live.displayLabel
 import org.koin.androidx.compose.koinViewModel
-import androidx.tv.material3.Text
 import tv.own.owntv.R
 import tv.own.owntv.core.customize.CustomizeKeys
 import tv.own.owntv.core.database.entity.ContentOrderEntity

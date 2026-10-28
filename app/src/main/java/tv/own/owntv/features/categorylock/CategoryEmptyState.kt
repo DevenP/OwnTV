@@ -38,7 +38,7 @@ internal fun CategoryEmptyState(
         Text(text, style = stageText(20, 500), color = StageColors.Muted)
         if (sealed) {
             StageButton(
-                text = stringResource(R.string.content_category_enter_pin),
+                text = stringResource(R.string.settings_customize_enter_pin),
                 onClick = onEnterPin,
                 icon = OwnTVIcon.LOCK,
                 modifier = Modifier.focusRequester(pinFocus).onDpadLeft({ onNavigateLeft != null }) { onNavigateLeft?.invoke() },

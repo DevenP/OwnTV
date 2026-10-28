@@ -81,7 +81,7 @@ fun CategoryContextMenu(
                 }
                 if (locked != null) {
                     tv.own.owntv.ui.stage.StageMenuItem(
-                        stringResource(if (locked) tv.own.owntv.R.string.content_category_unlock else tv.own.owntv.R.string.content_category_lock),
+                        stringResource(if (locked) tv.own.owntv.R.string.settings_customize_remove_lock else tv.own.owntv.R.string.content_category_lock),
                         onClick = onToggleLock, icon = OwnTVIcon.LOCK,
                         modifier = if (!canMove && !canHide) Modifier.focusRequester(focus) else Modifier,
                     )
