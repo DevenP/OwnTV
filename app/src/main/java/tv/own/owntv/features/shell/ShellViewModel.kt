@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.flatMapLatest
@@ -75,6 +76,16 @@ class ShellViewModel(
 
     private val relockProfile = RelockProfile()
 
+    /**
+     * The active profile and whether it has a lock that can seal anything; null until read, or when the
+     * read failed. Without one the relock skips its check, so leaving the app and coming back works
+     * exactly as it does with no locks: no wait for the check, and no fail-closed stop.
+     */
+    private val activeLocks: StateFlow<Pair<Long, Boolean>?> = settings.activeProfileId
+        .flatMapLatest { pid -> customize.observeHasLocks(pid).map<Boolean, Pair<Long, Boolean>?> { pid to it } }
+        .catch { e -> Log.w(TAG, "category lock state unreadable; relocks check what plays", e); emit(null) }
+        .stateIn(viewModelScope, SharingStarted.Eagerly, null)
+
     init {
         // One-time: move any existing playlist EPG into the new standalone EPG sources (v2.2.0).
         viewModelScope.launch { runCatching { epgMigration.run() } }
@@ -102,21 +113,31 @@ class ShellViewModel(
      * Closes every category the PIN opened; the app does this whenever it leaves the screen. Call it
      * before the engines free their streams: what is playing is read first, then stopped if now sealed.
      */
-    fun relockCategories() = relockFor(relockProfile.current)
+    fun relockCategories() = relockFor(relockProfile.current, skipWithoutLocks = true)
 
-    /** [relockCategories], checking what plays against [opener]'s locks as well as the active profile's. */
-    private fun relockFor(opener: Long?) {
+    /**
+     * [relockCategories], checking what plays against [opener]'s locks as well as the active profile's.
+     * Only leaving the app may [skipWithoutLocks]: on a profile change the lock state can still be the
+     * outgoing profile's.
+     */
+    private fun relockFor(opener: Long?, skipWithoutLocks: Boolean = false) {
         // Leaving again before the last return's resume ran: it must not start the engines in the background.
         resumeAfterCheck?.cancel()
         val guard = sealedPlayback
         val playing = guard?.snapshot()
         categoryUnlocks.relockAll()
-        if (guard == null || playing == null) return
+        if (guard == null || playing == null || (skipWithoutLocks && nothingToSeal(opener))) return
         val earlier = sealCheck
         sealCheck = viewModelScope.launch {
             earlier?.join()
             guard.stopIfSealed(playing) { sealsNow(opener, it) }
         }
+    }
+
+    /** The check would read only the active profile, and it has no lock: nothing can be sealed. */
+    private fun nothingToSeal(opener: Long?): Boolean {
+        val (active, hasLocks) = activeLocks.value ?: return false
+        return !hasLocks && (opener == null || opener == active)
     }
 
     /**
