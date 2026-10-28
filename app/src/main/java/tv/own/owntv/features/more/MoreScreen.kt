@@ -57,7 +57,7 @@ import tv.own.owntv.features.settings.DeveloperScreen
 import tv.own.owntv.features.settings.LocalSyncScreen
 import tv.own.owntv.features.settings.SettingsViewModel
 import tv.own.owntv.features.settings.lock.SettingsPinViewModel
-import tv.own.owntv.features.settings.lock.guardsPage
+import tv.own.owntv.core.settings.guardsPage
 import tv.own.owntv.features.shell.components.RailAvatar
 import tv.own.owntv.player.PlaybackErrorLog
 import tv.own.owntv.ui.components.OwnTVIcon

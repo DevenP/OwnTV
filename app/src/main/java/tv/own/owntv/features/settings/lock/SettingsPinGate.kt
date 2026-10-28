@@ -9,6 +9,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.res.stringResource
 import org.koin.androidx.compose.koinViewModel
 import tv.own.owntv.core.nav.MainSection
+import tv.own.owntv.core.settings.requiresPin
 import tv.own.owntv.features.profiles.PinLockedScreen
 
 /**
