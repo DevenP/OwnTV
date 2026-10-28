@@ -29,6 +29,7 @@
 - **Loading spinners use far less of the TV's processor; imports finish sooner**
 - **TV Guide: the now-line reaches the bottom** (community PR #303 by @spotandjake)
 - **Settings no longer shows "0 playlists" while loading**
+- **Live TV no longer keeps showing a category from the playlist you just switched away from**
 
 ## v5.2.1 — 2026-10-21
 
