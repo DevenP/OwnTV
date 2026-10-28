@@ -21,6 +21,8 @@
 - **🚀 Start on the last channel in the TV Guide or Live TV** (community PR #294 by @Kevsosmooth)
 - **🏷️ Menu labels: off, when focused or always** (community PR #280 by @Kevsosmooth)
 - **🎤 Voice search on the Search screen** (community PR #281 by @Kevsosmooth)
+- **🔒 Lock a category with the Customize PIN** (community PR #273 by @Kevsosmooth)
+- **🔐 Ask for the PIN to open Settings** (community PR #286 by @Kevsosmooth)
 
 ### 🐛 Fixes
 - **Home: the last card of a row stays on screen when it has focus** (community PR #314 by @arch-fan)
@@ -30,6 +32,7 @@
 - **TV Guide: the now-line reaches the bottom** (community PR #303 by @spotandjake)
 - **Settings no longer shows "0 playlists" while loading**
 - **Live TV no longer keeps showing a category from the playlist you just switched away from**
+- **Wrong PINs for Settings, Customize and the category locks share one wait**
 
 ## v5.2.1 — 2026-10-21
 
