@@ -57,6 +57,7 @@ import tv.own.owntv.core.launcher.LauncherLaunch
 import tv.own.owntv.core.update.UpdateManager
 import tv.own.owntv.features.update.UpdateDialog
 import tv.own.owntv.features.update.UpdateStatusToast
+import tv.own.owntv.features.categorylock.rememberDueReminder
 import tv.own.owntv.features.downloads.DownloadsScreen
 import tv.own.owntv.features.epg.EpgScreen
 import tv.own.owntv.features.home.HomeScreen
@@ -365,7 +366,7 @@ fun OwnTVShell(
         else -> stringResource(R.string.content_category_all_channels)
     }
     val showCategoryBrowser by liveVm.showCategoryBrowser.collectAsStateWithLifecycle()
-    val browserRailItems by liveVm.railItems.collectAsStateWithLifecycle()
+    val browserRailItems = liveVm.railItems.collectAsStateWithLifecycle().value.let { all -> remember(all) { all.filterNot { it.sealed } } }
     val browserRailCounts by liveVm.railCounts.collectAsStateWithLifecycle()
     val previewChannel by liveVm.previewChannel.collectAsStateWithLifecycle()
     val playerRecording by liveVm.playerRecording.collectAsStateWithLifecycle()
@@ -578,6 +579,7 @@ fun OwnTVShell(
         focusRail()
         Unit
     }
+    SealedPlaybackEffect(shellVm, liveVm, movieVm, seriesVm, player, { currentMultiview }, exitPlayer)
     // A one-stream playlist that a download was using: core paused the download; this asks what next.
     tv.own.owntv.features.downloads.DownloadWatchPrompt(onClosePlayer = { if (playerMode != PlayerMode.NONE) exitPlayer() })
     /**
@@ -1800,9 +1802,8 @@ fun OwnTVShell(
                 // Programme reminders: when one comes up, ask to switch, switch, or only say so (the
                 // Programme reminders setting) — over whatever is on screen, the player included.
                 val reminderManager = koinInject<tv.own.owntv.core.reminder.ReminderManager>()
-                val dueReminders by reminderManager.due.collectAsStateWithLifecycle()
                 val reminderMode by settingsRepo.reminderMode.collectAsStateWithLifecycle(tv.own.owntv.core.settings.SettingsRepository.ReminderMode.ASK)
-                val dueReminder = dueReminders.firstOrNull { it.profileId == activeProfileId }
+                val dueReminder = rememberDueReminder(activeProfileId)
                 val watchReminder: (tv.own.owntv.core.database.entity.ReminderEntity) -> Unit = { r ->
                     scope.launch {
                         reminderManager.dismiss(r.id)
