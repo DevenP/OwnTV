@@ -90,6 +90,15 @@ open class MainActivity : ComponentActivity() {
     @Volatile
     private var contentReady = false
 
+    /**
+     * Whether the shell has opened where the profile's start-up choice says (the TV Guide, Live TV, the
+     * player...). The shell first composes on Home and applies that choice a moment later, so the splash
+     * stays up until then and Home never flashes on the way. Owned by this activity, so a relaunch in a
+     * process that is still alive waits again.
+     */
+    @Volatile
+    private var startupSettled = false
+
     private val player: tv.own.owntv.player.OwnTVPlayer by inject()
     private val previewEngine: tv.own.owntv.player.LivePreviewEngine by inject()
     private val heroPreviewEngine: tv.own.owntv.player.HeroPreviewEngine by inject()
@@ -178,14 +187,14 @@ open class MainActivity : ComponentActivity() {
             if (!contentReady) return@setKeepOnScreenCondition now < splashDeadline
             if (readyAt == 0L) readyAt = now
             // Then until the shell is on the start-up screen, so Home does not flash first.
-            !tv.own.owntv.features.shell.StartupGate.settled && now < readyAt + STARTUP_SETTLE_TIMEOUT_MS
+            !startupSettled && now < readyAt + STARTUP_SETTLE_TIMEOUT_MS
         }
         pendingDeepLink = LauncherDeepLink.parse(intent.data)
         Log.d(TAG, "onCreate deepLinkHost=${intent.data?.host} deepLinkType=${pendingDeepLink?.javaClass?.simpleName ?: "none"}")
         val dbError = probeDatabase()
         if (dbError != null) {
             contentReady = true // the recovery screen IS the destination — don't hold the splash over it
-            tv.own.owntv.features.shell.StartupGate.settled = true
+            startupSettled = true
             setContent {
                 tv.own.owntv.features.recovery.DatabaseRecoveryScreen(
                     message = dbError,
@@ -310,7 +319,7 @@ open class MainActivity : ComponentActivity() {
             val destinationReady = loadedProfileId != null && profilesLoaded
             // A profile or PIN gate is the destination itself; the shell's start-up choice comes after it.
             LaunchedEffect(destinationReady, shellReady) {
-                if (destinationReady && !shellReady) tv.own.owntv.features.shell.StartupGate.settled = true
+                if (destinationReady && !shellReady) startupSettled = true
             }
             LaunchedEffect(destinationReady) {
                 if (destinationReady && !contentReady) {
@@ -450,6 +459,7 @@ open class MainActivity : ComponentActivity() {
                                 onDeepLinkConsumed = { pendingDeepLink = null },
                                 isOffline = !isOnline,
                                 onExitApp = { finish() },
+                                onStartupSettled = { startupSettled = true },
                                 onSwitchProfile = {
                                     // Stop playback and return to the "Who's watching?" gate — no app restart.
                                     player.onAppBackgrounded(); player.discardBackgroundRestore(); previewEngine.stop(); previewEngine.discardBackgroundRestore(); heroPreviewEngine.stop()
