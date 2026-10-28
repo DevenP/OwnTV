@@ -836,7 +836,8 @@ Hide, rename, reorder, and **unhide**. Highlights:
   are on (Live TV, Movies or Series): hidden categories and items, renames, category order and custom
   order. Other playlists, combined categories, favorites and guide matches are kept.
 - **Span select** — long-press a **Hide** or **move** button to act on a whole block at once.
-- **PIN lock** this screen with **Set PIN**.
+- **PIN lock** this screen with **Set PIN**. With a PIN set, **⋯ More → Ask for PIN to open Settings**
+  makes Settings ask for the same PIN each time it opens, on this profile. Removing the PIN turns it off.
 - **Lock a category with a PIN** — long-press a playlist category in Live TV, Movies or Series →
   **Lock with PIN**. It uses this screen's PIN (the first lock asks you to set one). The category stays
   in the list with a lock; its channels, films and shows stay out of everything else (search, Guide,

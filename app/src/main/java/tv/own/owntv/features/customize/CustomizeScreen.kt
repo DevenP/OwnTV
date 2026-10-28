@@ -49,6 +49,7 @@ import tv.own.owntv.features.settings.StageActionColumn
 import tv.own.owntv.features.settings.SpanHelpBlock
 import tv.own.owntv.core.model.MediaType
 import tv.own.owntv.features.profiles.PinDialog
+import tv.own.owntv.features.profiles.PinLockedScreen
 import tv.own.owntv.features.settings.PickerDialog
 import tv.own.owntv.features.settings.SettingsViewModel
 import tv.own.owntv.core.settings.SettingsRepository
@@ -80,6 +81,8 @@ fun CustomizeScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
     val rangeEndKey by vm.rangeEndKey.collectAsStateWithLifecycle()
     val rangeSelectedKeys by vm.rangeSelectedKeys.collectAsStateWithLifecycle()
     val pinLock by vm.pinLock.collectAsStateWithLifecycle()
+    val settingsPinVm: tv.own.owntv.features.settings.lock.SettingsPinViewModel = koinViewModel()
+    val askForSettingsPin = settingsPinVm.lock.collectAsStateWithLifecycle().value.askOnOpen
     val selectedCategory by vm.selectedCategory.collectAsStateWithLifecycle()
     var renaming by remember { mutableStateOf<CustomizeCatRow?>(null) }
     var showNewCatPicker by remember { mutableStateOf(false) }
@@ -138,9 +141,15 @@ fun CustomizeScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
 
     // Wait for the stored lock state before showing anything (no unlocked flash).
     if (!pinLock.loaded) return
-    val storedPin = pinLock.pin
-    if (storedPin != null && !unlocked) {
-        CustomizePinGate(storedPin, onUnlocked = { unlocked = true }, onBack = onBack, modifier = modifier)
+    val lockPin = pinLock.pin
+    if (lockPin != null && !unlocked) {
+        PinLockedScreen(
+            title = stringResource(R.string.settings_customize_title),
+            pin = lockPin,
+            onUnlock = { unlocked = true },
+            onDismiss = onBack,
+            modifier = modifier,
+        )
         return
     }
 
@@ -357,21 +366,7 @@ fun CustomizeScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
     if (showMoreMenu) {
         PickerDialog(
             title = stringResource(R.string.common_nav_more),
-            options = listOfNotNull(
-                // Bulk rename over every listed category, as the items page has it (the long-press span
-                // stays). In ⋯ rather than the tool row: two more pills pushed ⋯ itself off the screen.
-                "BULK" to stringResource(R.string.settings_bulk_rename_title),
-                "BULK_CLEANUP" to stringResource(R.string.settings_bulk_rename_auto_cleanup),
-                "NEW" to stringResource(
-                    R.string.settings_customize_new_categories_button,
-                    stringResource(if (hideNewCategories) R.string.settings_customize_behavior_hide else R.string.settings_customize_behavior_show),
-                ),
-                if (pinLock.pin == null) "PIN_SET" to stringResource(R.string.settings_customize_set_pin)
-                else "PIN_CHANGE" to stringResource(R.string.settings_customize_change_pin),
-                if (pinLock.pin != null) "PIN_REMOVE" to stringResource(R.string.settings_customize_remove_lock) else null,
-                // Undo for hide / rename / move / reorder, for the playlist(s) this screen shows.
-                CustomizeOption.RESTORE.name to stringResource(R.string.settings_customize_restore_defaults),
-            ),
+            options = customizeMoreOptions(hideNewCategories, hasPin = pinLock.pin != null, askForSettingsPin = askForSettingsPin),
             selected = "",
             onSelect = { value ->
                 showMoreMenu = false
@@ -384,6 +379,7 @@ fun CustomizeScreen(onBack: () -> Unit, modifier: Modifier = Modifier) {
                         editingPin = if (value == "PIN_SET") PinEdit.SET else PinEdit.CHANGE
                     }
                     "PIN_REMOVE" -> editingPin = PinEdit.REMOVE
+                    "SETTINGS_PIN" -> settingsPinVm.setAskOnOpen(!askForSettingsPin)
                     CustomizeOption.RESTORE.name -> restoringDefaults = true
                 }
             },
@@ -696,6 +692,3 @@ internal fun Modifier.upTo(target: FocusRequester): Modifier = onPreviewKeyEvent
     if (e.type == androidx.compose.ui.input.key.KeyEventType.KeyDown) runCatching { target.requestFocus() }
     true
 }
-
-/** Key of the restore entry in the More menu (the others are the screen's existing string keys). */
-private enum class CustomizeOption { RESTORE }

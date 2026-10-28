@@ -1165,7 +1165,7 @@ fun OwnTVShell(
                                 .focusGroup(),
                         )
 
-                        selectedSection == MainSection.SETTINGS -> SettingsScreen(
+                        selectedSection == MainSection.SETTINGS -> tv.own.owntv.features.settings.lock.SettingsPinGate(onDismiss = { settingsStart = null; openEpgAdd = false; restoreFocus = true; onSelectSection(shellVm.sectionToLeaveLockedSettings()) }) { SettingsScreen(
                             themeMode = themeMode,
                             uiZoomPercent = uiZoomPercent,
                             onSetZoom = onSetZoom,
@@ -1183,7 +1183,7 @@ fun OwnTVShell(
                                 .fillMaxSize()
                                 .onFocusChanged { if (it.hasFocus) focusedLayer = ShellLayer.CONTENT }
                                 .focusGroup(),
-                        )
+                        ) }
 
                         selectedSection == MainSection.HOME -> HomeScreen(
                             vm = homeVm,
