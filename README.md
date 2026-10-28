@@ -89,7 +89,7 @@ Questions, ideas, bug reports — **join the OwnTV Telegram group:**
 - OwnTV measures how many streams your provider allows and warns before it refuses one
 
 ### 👥 Profiles & Downloads
-- Multiple profiles with their own favourites, history and resume points, PIN locks and a Kids mode
+- Multiple profiles with their own favourites, history and resume points, PIN locks and a Kids mode; lock single categories behind a PIN, and optionally Settings too
 - Per-profile startup: Home, last channel, the last channel in the TV Guide or Live TV, Favorites, or one
   chosen channel
 - Offline movies and episodes with pause, resume, retry and a storage bar
