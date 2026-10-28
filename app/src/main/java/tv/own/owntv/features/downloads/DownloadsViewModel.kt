@@ -32,8 +32,8 @@ import tv.own.owntv.core.database.entity.DownloadEntity
 import tv.own.owntv.core.download.DownloadManager
 import tv.own.owntv.core.model.MediaType
 import tv.own.owntv.core.settings.SettingsRepository
-import tv.own.owntv.features.categorylock.PlayingFileCategory
-import tv.own.owntv.features.categorylock.anyLockSealed
+import tv.own.owntv.core.categorylock.PlayingFileCategory
+import tv.own.owntv.core.categorylock.anyLockSealed
 import tv.own.owntv.player.OwnTVPlayer
 
 /** Lists the active profile's downloads and plays completed ones from local storage. */

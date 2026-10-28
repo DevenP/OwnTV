@@ -41,8 +41,8 @@ import tv.own.owntv.core.repository.activeProfileSources
 import tv.own.owntv.core.settings.SettingsRepository
 import tv.own.owntv.core.sync.local.LocalSyncManager
 import tv.own.owntv.core.sync.local.PairedDevice
-import tv.own.owntv.features.categorylock.lockAwareCount
-import tv.own.owntv.features.categorylock.sealedCategoryIds
+import tv.own.owntv.core.categorylock.lockAwareCount
+import tv.own.owntv.core.categorylock.sealedCategoryIds
 
 /** How many channels, films and shows a list holds, one number per type. */
 data class TypeCounts(val live: Int = 0, val movies: Int = 0, val series: Int = 0) {

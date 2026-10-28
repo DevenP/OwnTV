@@ -24,9 +24,9 @@ import tv.own.owntv.core.player.ExternalPlayerLauncher
 import tv.own.owntv.core.recording.RecordingManager
 import tv.own.owntv.core.settings.SettingsRepository
 import tv.own.owntv.core.storage.missingFiles
-import tv.own.owntv.features.categorylock.PlayingFileCategory
-import tv.own.owntv.features.categorylock.anyLockSealed
-import tv.own.owntv.features.categorylock.withoutSealed
+import tv.own.owntv.core.categorylock.PlayingFileCategory
+import tv.own.owntv.core.categorylock.anyLockSealed
+import tv.own.owntv.core.categorylock.withoutSealed
 import tv.own.owntv.player.OwnTVPlayer
 
 /**

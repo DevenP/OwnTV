@@ -9,7 +9,7 @@ import tv.own.owntv.R
 import tv.own.owntv.core.customize.CategoryRestorePlan
 import tv.own.owntv.core.customize.categoryRestoreSummary
 import tv.own.owntv.core.live.LiveKey
-import tv.own.owntv.features.categorylock.SealedCategoryAction
+import tv.own.owntv.core.categorylock.SealedCategoryAction
 import tv.own.owntv.features.live.LiveRailItem
 
 /**

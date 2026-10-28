@@ -55,10 +55,10 @@ import tv.own.owntv.core.live.StreamGrant
 import tv.own.owntv.core.recording.RecordingSchedule
 import tv.own.owntv.core.customize.SectionCustomizations
 import tv.own.owntv.core.customize.sealsItemIn
-import tv.own.owntv.features.categorylock.lockAwareCatchupCount
-import tv.own.owntv.features.categorylock.lockAwareCountsByContexts
-import tv.own.owntv.features.categorylock.visibleOnceRead
-import tv.own.owntv.features.categorylock.whileSealed
+import tv.own.owntv.core.categorylock.lockAwareCatchupCount
+import tv.own.owntv.core.categorylock.lockAwareCountsByContexts
+import tv.own.owntv.core.categorylock.visibleOnceRead
+import tv.own.owntv.core.categorylock.whileSealed
 import tv.own.owntv.core.customize.CategoryMove
 import tv.own.owntv.core.customize.CategoryRailEditor
 import tv.own.owntv.core.customize.railCategories

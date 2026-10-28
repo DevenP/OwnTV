@@ -48,7 +48,7 @@ import tv.own.owntv.core.model.MediaType
 import tv.own.owntv.core.metadata.MetadataImages
 import tv.own.owntv.core.metadata.MetadataRepository
 import tv.own.owntv.core.settings.SettingsRepository
-import tv.own.owntv.features.categorylock.sealedCategoryKeys
+import tv.own.owntv.core.categorylock.sealedCategoryKeys
 import tv.own.owntv.player.HeroPreviewEngine
 
 @Immutable

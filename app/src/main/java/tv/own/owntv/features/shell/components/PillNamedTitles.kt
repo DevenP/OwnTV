@@ -12,8 +12,8 @@ import tv.own.owntv.core.customize.LockedNotificationTitles
 import tv.own.owntv.core.download.DownloadActivityTracker
 import tv.own.owntv.core.recording.RecordingActivityTracker
 import tv.own.owntv.core.settings.SettingsRepository
-import tv.own.owntv.features.categorylock.namedIds
-import tv.own.owntv.features.categorylock.sealedCategoryKeys
+import tv.own.owntv.core.categorylock.namedIds
+import tv.own.owntv.core.categorylock.sealedCategoryKeys
 
 /** The running download and recordings the status pill may name; the others it labels as locked. */
 internal data class PillNamedTitles(val downloads: Set<Long> = emptySet(), val recordings: Set<Long> = emptySet())

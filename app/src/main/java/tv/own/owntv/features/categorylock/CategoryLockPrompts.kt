@@ -13,6 +13,9 @@ import tv.own.owntv.R
 import tv.own.owntv.core.live.LiveKey
 import tv.own.owntv.core.model.MediaType
 import tv.own.owntv.features.profiles.PinDialog
+import tv.own.owntv.core.categorylock.CategoryLockPrompt
+import tv.own.owntv.core.categorylock.CategoryLockUi
+import tv.own.owntv.core.categorylock.SealedCategoryAction
 
 /**
  * The category-lock PIN popups of section [type], in the Customize screen's compact PIN look. [onClosed]

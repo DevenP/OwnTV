@@ -5,10 +5,10 @@ import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberUpdatedState
 import org.koin.compose.koinInject
-import tv.own.owntv.features.categorylock.PlayingCategories
-import tv.own.owntv.features.categorylock.PlayingFileCategory
-import tv.own.owntv.features.categorylock.SealedPlaybackGuard
-import tv.own.owntv.features.categorylock.sealedTileIndices
+import tv.own.owntv.core.categorylock.PlayingCategories
+import tv.own.owntv.core.categorylock.PlayingFileCategory
+import tv.own.owntv.core.categorylock.SealedPlaybackGuard
+import tv.own.owntv.core.categorylock.sealedTileIndices
 import tv.own.owntv.features.live.LiveViewModel
 import tv.own.owntv.features.movies.MovieViewModel
 import tv.own.owntv.features.multiview.MultiviewState

@@ -19,8 +19,8 @@ import kotlinx.coroutines.delay
 import org.koin.compose.koinInject
 import tv.own.owntv.R
 import tv.own.owntv.core.util.Pin
-import tv.own.owntv.features.categorylock.PinAttempt
-import tv.own.owntv.features.categorylock.PinAttemptLimiter
+import tv.own.owntv.core.categorylock.PinAttempt
+import tv.own.owntv.core.categorylock.PinAttemptLimiter
 import tv.own.owntv.features.categorylock.pinEntryTitle
 import tv.own.owntv.ui.theme.mpx
 

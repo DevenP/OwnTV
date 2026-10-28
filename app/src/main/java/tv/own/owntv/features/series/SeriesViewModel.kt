@@ -39,9 +39,9 @@ import kotlinx.coroutines.launch
 import tv.own.owntv.core.customize.CustomizationStore
 import tv.own.owntv.core.customize.SectionCustomizations
 import tv.own.owntv.core.content.seriesCountFlow
-import tv.own.owntv.features.categorylock.clearWhenSealed
-import tv.own.owntv.features.categorylock.lockAwareCountsByContexts
-import tv.own.owntv.features.categorylock.visibleOnceRead
+import tv.own.owntv.core.categorylock.clearWhenSealed
+import tv.own.owntv.core.categorylock.lockAwareCountsByContexts
+import tv.own.owntv.core.categorylock.visibleOnceRead
 import tv.own.owntv.core.customize.seals
 import tv.own.owntv.core.customize.sealsItemIn
 import tv.own.owntv.core.customize.CategoryMove

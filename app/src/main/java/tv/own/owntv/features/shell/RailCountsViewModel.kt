@@ -27,9 +27,9 @@ import tv.own.owntv.core.model.MediaType
 import tv.own.owntv.core.nav.MainSection
 import tv.own.owntv.core.repository.activeProfileSources
 import tv.own.owntv.core.settings.SettingsRepository
-import tv.own.owntv.features.categorylock.lockAwareCount
-import tv.own.owntv.features.categorylock.recheckedOn
-import tv.own.owntv.features.categorylock.sealedCategoryIds
+import tv.own.owntv.core.categorylock.lockAwareCount
+import tv.own.owntv.core.categorylock.recheckedOn
+import tv.own.owntv.core.categorylock.sealedCategoryIds
 
 /** The rail's details lines (Size = Extra wide), as data; the shell turns them into text. */
 data class RailDetails(
