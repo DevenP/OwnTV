@@ -300,9 +300,10 @@ hiding a provider category no longer empties custom categories. Custom categorie
 player's channel list and the Multiview picker. A typed category search is kept while a channel plays;
 Back in the list clears it.
 
-Search covers Live, Movies and Series together (3.2). Live TV
-reopens on the category you last used, with focus on the last channel. **App startup** is per
-profile: Home, last channel, Live Favorites, or one chosen channel.
+Search covers Live, Movies and Series together (3.2), with voice search where the device has a speech
+recogniser. Live TV reopens on the category you last used, with focus on the last channel. **App
+startup** is per profile: Home, last channel, the last channel in the TV Guide or Live TV, Live
+Favorites, or one chosen channel.
 
 ---
 
@@ -446,6 +447,8 @@ their group.
   with the explicit Dark theme while Glass is off.
 - **Remote Shortcuts** — short and long presses of spare colour, number, channel and media keys
   mapped to 26 actions. Essential keys stay protected; the shipped CH+/− paging remains the default.
+  **Player buttons** on the same page: what holding or pressing OK opens in the full-screen player,
+  swapped channel up/down, and number keys on or off; every default is the player's own behaviour.
 - **Stage defaults** are written once at the first start of v5.1.0 (core `applyStageDefaults`); a
   value the user already stored is kept.
 - **Developer** (dev-tools builds only) lives under More, not Settings.

@@ -17,6 +17,10 @@
 - **📋 EPG Sources: Move up / Move down set the guide priority** (community PR #277 by @Kevsosmooth)
 - **🎯 Guide offers Auto-match when an added guide matches no channel** (community PR #316 by @arch-fan)
 - **⏪ Rewind mark in the TV Guide; Resync now in the playlist menu** (community PR #305 by @sarmadsoomro)
+- **🎛️ Player buttons: choose what OK does, swap channel up/down, number keys on or off** (community PR #287 by @Kevsosmooth)
+- **🚀 Start on the last channel in the TV Guide or Live TV** (community PR #294 by @Kevsosmooth)
+- **🏷️ Menu labels: off, when focused or always** (community PR #280 by @Kevsosmooth)
+- **🎤 Voice search on the Search screen** (community PR #281 by @Kevsosmooth)
 
 ### 🐛 Fixes
 - **Home: the last card of a row stays on screen when it has focus** (community PR #314 by @arch-fan)
