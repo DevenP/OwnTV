@@ -35,6 +35,10 @@
 - **Settings no longer shows "0 playlists" while loading**
 - **Live TV no longer keeps showing a category from the playlist you just switched away from**
 - **Wrong PINs for Settings, Customize and the category locks share one wait**
+- **Settings search says what to type instead of showing an empty page**
+- **The channel banner names the new channel at once on CH+/CH−**
+- **An mpv channel comes back after Home, with Resume / Go live, instead of a black screen**
+- **Starting on the last channel no longer flashes Home first on large playlists**
 
 ## v5.2.1 — 2026-10-21
 
