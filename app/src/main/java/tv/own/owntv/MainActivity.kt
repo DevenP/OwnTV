@@ -122,9 +122,9 @@ open class MainActivity : ComponentActivity() {
         // Backgrounded (Home / another app), exited, logged out, or the picture-in-picture window closed:
         // stop playback and free the demuxer cache + decoder buffers — holding them while invisible got
         // the process LMK-killed on real TVs. Every engine: mpv, the Live engine (its audio must stop
-        // too), each Multiview tile and the hero. The one place the app hears it went to the background;
-        // a picture-in-picture window only pauses the activity, so playback there never reaches it.
-        // The relock first: it reads what is playing before the engines free it.
+        // too), each Multiview tile and the hero. A picture-in-picture window only pauses the activity,
+        // so playback there never reaches it. The relock first: it reads what is playing before the
+        // engines free it.
         if (!isChangingConfigurations) { shellViewModel.relockCategories(); engines.onAppBackgrounded() }
         handOff.onActivityStopped()
         window.clearFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
@@ -186,6 +186,9 @@ open class MainActivity : ComponentActivity() {
         val splash = installSplashScreen()
         super.onCreate(savedInstanceState)
         tv.own.owntv.features.pip.PictureInPictureWindow.attach(this, get())
+        // The window only pauses the activity, so onStop's relock never runs while it is open: going into
+        // it is leaving the app, and a channel from a category the PIN opened stops there too.
+        addOnPictureInPictureModeChangedListener { if (it.isInPictureInPictureMode) shellViewModel.relockCategories() }
         val splashDeadline = SystemClock.uptimeMillis() + SPLASH_TIMEOUT_MS
         var readyAt = 0L
         splash.setKeepOnScreenCondition {
