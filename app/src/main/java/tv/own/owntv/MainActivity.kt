@@ -65,8 +65,12 @@ open class MainActivity : ComponentActivity() {
          */
         private const val SPLASH_TIMEOUT_MS = 2_000L
 
-        /** How much longer, once the profile is known, the splash waits for the start-up screen. */
-        private const val STARTUP_SETTLE_TIMEOUT_MS = 1_500L
+        /**
+         * How much longer, once the profile is known, the splash waits for the start-up screen. Home settles
+         * at once, so only a start on the last channel ever waits; on a 55k-channel playlist on the TCL that
+         * took 2.2–3.3 s from launch, and a shorter wait showed Home for a moment before Live TV or the Guide.
+         */
+        private const val STARTUP_SETTLE_TIMEOUT_MS = 3_000L
     }
 
     /**

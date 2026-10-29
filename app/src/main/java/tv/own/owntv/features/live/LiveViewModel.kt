@@ -1225,7 +1225,13 @@ class LiveViewModel(
      *  for the profile to be known, then reads the newest watch-history row. Null if there is none. */
     suspend fun lastWatchedLiveChannel(): ChannelEntity? {
         val pid = ctx.first { it.profileId >= 0 }.profileId
-        return channelDao.recentlyWatched(pid, 1).first().firstOrNull()?.takeIf { !customize.sealsCategory(pid, it.categoryId) }
+        // At a cold start the lock store's first read costs as much as the history query (0.3–0.6 s each on
+        // the TCL with a 55k-channel playlist), and the start-up choice holds the splash on this call: read
+        // it alongside the query, so the seal check below finds it already loaded.
+        return kotlinx.coroutines.coroutineScope {
+            launch { customize.observeHasLocks(pid).first() }
+            channelDao.recentlyWatched(pid, 1).first().firstOrNull()
+        }?.takeIf { !customize.sealsCategory(pid, it.categoryId) }
     }
 
     /** Final startup/deep-entry visibility check, including profile source and Customize policy. */
