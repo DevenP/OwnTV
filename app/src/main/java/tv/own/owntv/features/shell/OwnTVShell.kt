@@ -368,6 +368,33 @@ fun OwnTVShell(
     val browserRailItems = liveVm.railItems.collectAsStateWithLifecycle().value.let { all -> remember(all) { all.filterNot { it.sealed } } }
     val browserRailCounts by liveVm.railCounts.collectAsStateWithLifecycle()
     val previewChannel by liveVm.previewChannel.collectAsStateWithLifecycle()
+    // Home / screensaver with a live channel on mpv: mpv frees the stream and keeps no restore for live
+    // (ExoPlayer's live engine does), so the return found a black, paused player. Tune the same channel
+    // again once the relock check is done; the tune reopens its saved copy and offers Resume / Go live.
+    val lifecycle = androidx.lifecycle.compose.LocalLifecycleOwner.current.lifecycle
+    val currentPlayerMode by rememberUpdatedState(playerMode)
+    DisposableEffect(lifecycle, liveVm, player) {
+        var mpvLiveChannel: tv.own.owntv.core.database.entity.ChannelEntity? = null
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            when (event) {
+                androidx.lifecycle.Lifecycle.Event.ON_STOP -> mpvLiveChannel = liveVm.previewChannel.value?.takeIf {
+                    currentPlayerMode != PlayerMode.NONE && !liveVm.liveOnExo.value && player.isLiveContent
+                }
+                androidx.lifecycle.Lifecycle.Event.ON_START -> mpvLiveChannel?.let { channel ->
+                    mpvLiveChannel = null
+                    shellVm.afterSealCheck {
+                        // A relock that sealed it cleared the channel; a stream already back needs nothing.
+                        if (liveVm.previewChannel.value?.id == channel.id && player.currentMediaUrl == null) {
+                            liveVm.ensurePlaying(channel)
+                        }
+                    }
+                }
+                else -> Unit
+            }
+        }
+        lifecycle.addObserver(observer)
+        onDispose { lifecycle.removeObserver(observer) }
+    }
     val playerRecording by liveVm.playerRecording.collectAsStateWithLifecycle()
     val overlayProgrammes by liveVm.nowProgrammes.collectAsStateWithLifecycle()
     val overlayFavoriteIds by liveVm.favoriteIds.collectAsStateWithLifecycle()
@@ -1729,6 +1756,9 @@ fun OwnTVShell(
                             val guide by liveVm.zapGuide.collectAsStateWithLifecycle()
                             tv.own.owntv.features.shell.components.ZapGuideLines(guide)
                         }
+                    } else null,
+                    zapChannel = if (isLiveChannel) {
+                        previewChannel?.let { tv.own.owntv.player.DirectTuneChannelInfo(it.number, it.name, it.logoUrl) }
                     } else null,
                     // Guide card for the playing channel (nowNext follows previewChannel = what's playing).
                     liveEpgCard = if (isLiveChannel) {
