@@ -61,7 +61,7 @@ Questions, ideas, bug reports — **join the OwnTV Telegram group:**
 - **Two engines** — mpv for compatibility, ExoPlayer for instant Live TV, with automatic fallback and a per-channel override
 - **4K HDR** direct rendering, optional auto frame-rate matching, surround sound with a stereo safety net, 150% volume boost
 - **Subtitles** — text, image and closed captions, plus OpenSubtitles search and local files
-- Resume, next-episode auto-play, mini-player/PiP, audio-only mode, live stream-info overlay
+- Resume, next-episode auto-play, mini-player/PiP, picture-in-picture when you press Home, audio-only mode, live stream-info overlay
 - Media-session transport keys and proper audio focus — it behaves like a TV app
 - An **error log you can export** for any stream that misbehaves
 
