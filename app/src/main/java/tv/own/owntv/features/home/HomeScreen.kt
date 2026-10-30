@@ -394,9 +394,18 @@ fun HomeScreen(
                 contentPadding = PaddingValues(top = if (fullBleed || posterItem != null) 0.dp else NoHeroTop, bottom = 48.mpx),
                 verticalArrangement = Arrangement.spacedBy(RowGap),
             ) {
-                itemsIndexed(renderRows, key = { _, row -> row.name }) { _, row ->
+                itemsIndexed(renderRows, key = { _, row -> row.name }) { index, row ->
                     val firstItemFocusRequester = rowFocusRequester(row)
-                    val rowModifier = if (row == firstRowUnderHero) unfoldOnUp else Modifier
+                    // With no hero above it, the first row is the top of the page: back at it, show the page
+                    // from the top. Bringing the focused card into view alone stopped as soon as the card
+                    // showed, leaving the row's heading (Keep watching) cut off above the screen. A full-bleed
+                    // or poster hero has its own way back up (see [unfoldOnUp]), so this stays out of its way.
+                    val topRow = index == 0 && !fullBleed && posterItem == null
+                    val rowModifier = when {
+                        row == firstRowUnderHero -> unfoldOnUp
+                        topRow -> Modifier.onFocusChanged { if (it.hasFocus) homeScope.launch { listState.animateScrollToItem(0) } }
+                        else -> Modifier
+                    }
                     CompositionLocalProvider(LocalBringIntoViewSpec provides rowBringIntoViewSpec) {
                         when (row) {
                             HomeRow.TRENDING -> if (state.trendingItems.size < TrendingDao.MIN_ELIGIBLE_ITEMS) {
