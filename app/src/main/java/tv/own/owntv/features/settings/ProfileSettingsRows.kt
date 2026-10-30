@@ -23,6 +23,7 @@ import tv.own.owntv.features.profiles.ProfileEditorDialog
 import tv.own.owntv.features.profiles.ProfileGateSessionViewModel
 import tv.own.owntv.features.profiles.ProfilesViewModel
 import tv.own.owntv.ui.components.OwnTVIcon
+import tv.own.owntv.ui.components.longPressMenuGuard
 import tv.own.owntv.ui.stage.StageTag
 import tv.own.owntv.ui.theme.StageColors
 import tv.own.owntv.ui.theme.mpx
@@ -148,6 +149,9 @@ internal fun ProfileSettingsRows() {
                 confirmDelete = null
             },
             onDismiss = { confirmDelete = null },
+            // Opened by a held OK: without the guard its repeats press Cancel, so the confirmation
+            // closed the moment it appeared and a profile could never be deleted.
+            modifier = Modifier.longPressMenuGuard(),
         )
     }
 }
