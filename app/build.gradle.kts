@@ -446,3 +446,6 @@ dependencies {
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
 }
+
+// Fork: install next to the official OwnTV instead of over it (different signing key).
+android.defaultConfig.applicationIdSuffix = ".deven"
