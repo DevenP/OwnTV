@@ -71,8 +71,10 @@ internal fun ProfileSettingsRows() {
     val help = SettingHelp(
         title = stringResource(R.string.profiles_title),
         text = stringResource(R.string.settings_help_profiles),
-        hints = listOf(
+        hints = listOfNotNull(
             stringResource(R.string.common_ok) to stringResource(R.string.common_edit),
+            // The only way to delete a profile, so it has to be shown; never for the last one.
+            if (profiles.size > 1) stringResource(R.string.content_key_hold_ok) to stringResource(R.string.common_delete) else null,
             stringResource(R.string.common_back) to stringResource(R.string.common_nav_settings),
         ),
     )
